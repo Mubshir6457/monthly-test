@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Test Management</title>
+<style>
+body{font-family:Arial;margin:0;padding:10px;background:#f5f5f5}
+.box{border:2px solid #2c3e50;padding:15px;margin:10px 0;background:white;border-radius:8px}
+input,select{padding:10px;margin:5px 0;border:1px solid #ddd;border-radius:6px;width:100%;box-sizing:border-box}
+button{padding:12px;border:none;border-radius:6px;cursor:pointer;margin:5px;width:auto}
+.btn-blue{background:#3498db;color:white}
+.btn-green{background:#27ae60;color:white}
+.btn-red{background:#e74c3c;color:white}
+.hidden{display:none}
+.result-table{width:100%;border-collapse:collapse;margin:10px 0;font-size:12px;text-align:center}
+.result-table th,.result-table td{border:1px solid #ddd;padding:4px}
+.result-table th{background:#2c3e50;color:white;font-size:11px}
+.result-table .marks-row{background:#3498db;color:white;font-weight:bold}
+.result-table .subject-row{background:#2980b9;color:white}
+.result-table .student-row:hover{background:#f0f8fa}
+.test-type-container{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}
+.test-type-btn{padding:6px 10px;border:1px solid #3498db;background:white;color:#3498db;border-radius:3px;cursor:pointer;font-size:11px}
+.test-type-btn.active{background:#3498db;color:white}
+.filter-box{background:#ecf0f1;padding:10px;border-radius:5px;margin-bottom:15px}
+.student-info{background:#e8f4fc;padding:8px;border-radius:5px;margin:10px 0;font-size:13px}
+.test-header{background:#3498db;color:white;padding:10px;border-radius:5px;margin-bottom:10px;text-align:center;font-weight:bold}
+.test-date-display{color:#666;font-size:12px;margin:5px 0;text-align:center}
+.delete-btn{background:#e74c3c;color:white;border:none;padding:3px 6px;border-radius:2px;cursor:pointer;font-size:10px}
+.scroll-container{overflow-x:auto;margin:10px 0}
+.tab-container{display:flex;border-bottom:2px solid #3498db;margin-bottom:15px}
+.tab-btn{padding:10px 15px;background:#f1f1f1;border:none;cursor:pointer;border-radius:5px 5px 0 0;margin-right:5px}
+.tab-btn.active{background:#3498db;color:white}
+.tab-content{display:none}
+.tab-content.active{display:block}
+.summary-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:15px 0}
+.stat-card{background:white;padding:15px;border-radius:5px;border-left:4px solid #3498db;box-shadow:0 2px 4px rgba(0,0,0,0.1)}
+</style>
+<script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<!-- Public View -->
+<div id="publicPage" class="box">
+<h2>📊 Student Test Results</h2>
+<input type="text" id="searchRoll" placeholder="Enter Roll Number">
+<button class="btn-blue" onclick="searchStudentResult()">Search Result</button>
+<div id="publicResult" class="hidden"></div>
+</div>
+
+<!-- Admin Login -->
+<div class="box" id="loginBox">
+<h2>🔐 Admin Login</h2>
+<input type="email" id="email" placeholder="Email">
+<input type="password" id="password" placeholder="Password">
+<button class="btn-green" onclick="login()">Login</button>
+</div>
+
+<!-- Admin Panel -->
+<div class="box hidden" id="adminPanel">
+<button class="btn-red" onclick="logout()" style="float:right">Logout</button>
+<h2>👨‍💼 Admin Panel</h2>
+
+<div class="tab-container">
+<button class="tab-btn active" onclick="showTab('addTest')">➕ Add Test</button>
+<button class="tab-btn" onclick="showTab('viewResults')">📋 View Results</button>
+<button class="tab-btn" onclick="showTab('allResults')">📊 All Results</button>
+<button class="tab-btn" onclick="showTab('exportData')">📥 Export Data</button>
+</div>
+
+<!-- Add Test Tab -->
+<div id="addTest" class="tab-content active">
+<h3>Add Test Result</h3>
+<div class="test-type-container" id="testTypeButtons">
+<!-- Test type buttons will be generated here -->
+</div>
+<input type="date" id="testDate" placeholder="Test Date">
+<input type="text" id="rollNo" placeholder="Roll Number" onblur="getStudentInfo()">
+<div id="studentDisplay" class="student-info hidden"></div>
+<input type="text" id="subject" placeholder="Subject Name">
+<input type="number" id="totalMarks" placeholder="Total Marks">
+<input type="text" id="obtainedMarks" placeholder="Obtained Marks (A for absent)">
+<button class="btn-green" onclick="addTestResult()">Save Test Result</button>
+</div>
+
+<!-- View Results Tab -->
+<div id="viewResults" class="tab-content">
+<h3>View Test Results by Type</h3>
+<div class="filter-box">
+<select id="selectedTestType" onchange="loadTestResults()">
+<option value="">Select Test Type</option>
+<!-- Options will be populated -->
+</select>
+<input type="text" id="searchStudent" placeholder="Search by Roll No or Name" onkeyup="loadTestResults()">
+</div>
+<div id="testResults"></div>
+</div>
+
+<!-- All Results Tab -->
+<div id="allResults" class="tab-content">
+<h3>All Student Results</h3>
+<div class="filter-box">
+<select id="filterStudent" onchange="loadAllStudentResults()">
+<option value="">Select Student</option>
+</select>
+<input type="text" id="searchAll" placeholder="Search by Name or Roll" onkeyup="loadAllStudentResults()">
+</div>
+<div id="allStudentResults"></div>
+</div>
+
+<!-- Export Data Tab -->
+<div id="exportData" class="tab-content">
+<h3>Export Data to Excel</h3>
+<div class="summary-stats" id="statsContainer"></div>
+<button class="btn-blue" onclick="exportAllStudentsToExcel()">📊 Export All Students (Separate Sheets)</button>
+<button class="btn-green" onclick="exportSummaryToExcel()">📈 Export Summary Report</button>
+<button class="btn-red" onclick="exportByTestType()">📋 Export by Test Type</button>
+</div>
+</div>
+
+<script>
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAlXd1v5IZwaEROAdfKMXMUPflIorWV4Zg",
+  authDomain: "students-51da1.firebasestorage.app",
+  databaseURL: "https://students-51da1-default-rtdb.firebaseio.com",
+  projectId: "students-51da1",
+  storageBucket: "students-51da1.firebasestorage.app",
+  messagingSenderId: "785878911811",
+  appId: "1:785878911811:web:5a0a480d3ceca57976bdf6"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+
+let currentTestType = "T1";
+const testTypes = [];
+
+// Generate test types T1 to T20 + Final
+for (let i = 1; i <= 20; i++) {
+  testTypes.push(`T${i}`);
+}
+testTypes.push("Final");
+
+// Authentication State
+auth.onAuthStateChanged(function(user) {
+  if (user) {
+    document.getElementById('publicPage').classList.add('hidden');
+    document.getElementById('loginBox').classList.add('hidden');
+    document.getElementById('adminPanel').classList.remove('hidden');
+    initializeTestTypes();
+    loadStats();
+    loadAllStudentResults();
+  } else {
+    document.getElementById('publicPage').classList.remove('hidden');
+    document.getElementById('loginBox').classList.remove('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');
+  }
+});
+
+// Show Tab
+function showTab(tabName) {
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(tabName).classList.add('active');
+}
+
+// Initialize Test Types
+function initializeTestTypes() {
+  const container = document.getElementById('testTypeButtons');
+  const select = document.getElementById('selectedTestType');
+  
+  container.innerHTML = '';
+  select.innerHTML = '<option value="">Select Test Type</option>';
+  
+  testTypes.forEach(type => {
+    const btn = document.createElement('button');
+    btn.className = `test-type-btn ${type === 'T1' ? 'active' : ''}`;
+    btn.textContent = type;
+    btn.onclick = () => setTestType(type);
+    container.appendChild(btn);
+    
+    const option = document.createElement('option');
+    option.value = type;
+    option.textContent = `${type} Test`;
+    select.appendChild(option);
+  });
+}
+
+// Set Test Type
+function setTestType(type) {
+  currentTestType = type;
+  document.querySelectorAll('.test-type-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+// Get Student Info
+async function getStudentInfo() {
+  const rollNo = document.getElementById('rollNo').value.trim();
+  if (!rollNo) return;
+  
+  try {
+    const snapshot = await db.ref('students/' + rollNo).once('value');
+    if (snapshot.exists()) {
+      const student = snapshot.val();
+      document.getElementById('studentDisplay').innerHTML = 
+        `<strong>Student:</strong> ${student.name} | <strong>Class:</strong> ${student.class || 'N/A'}`;
+      document.getElementById('studentDisplay').classList.remove('hidden');
+    } else {
+      document.getElementById('studentDisplay').innerHTML = 
+        `<span style="color:red">Student not found. Click to add:</span>
+        <button onclick="addNewStudent('${rollNo}')" style="background:#27ae60;color:white;border:none;padding:3px 6px;border-radius:2px;cursor:pointer;margin-left:5px">
+        Add Student</button>`;
+      document.getElementById('studentDisplay').classList.remove('hidden');
+    }
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+// Add New Student
+async function addNewStudent(rollNo) {
+  const name = prompt("Enter student name for roll number " + rollNo + ":");
+  if (!name) return;
+  
+  const className = prompt("Enter class for " + name + ":");
+  if (!className) return;
+  
+  try {
+    const studentData = {
+      name: name,
+      class: className,
+      addedAt: Date.now()
+    };
+    
+    await db.ref('students/' + rollNo).set(studentData);
+    
+    alert(`✅ Student added!\nRoll No: ${rollNo}\nName: ${name}\nClass: ${className}`);
+    getStudentInfo();
+    
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+
+// Add Test Result
+async function addTestResult() {
+  const testDate = document.getElementById('testDate').value;
+  const rollNo = document.getElementById('rollNo').value.trim();
+  const subject = document.getElementById('subject').value.trim();
+  const totalMarks = document.getElementById('totalMarks').value;
+  const obtainedMarks = document.getElementById('obtainedMarks').value;
+  
+  if (!testDate || !rollNo || !subject || !totalMarks || !obtainedMarks) {
+    return alert('Please fill all fields');
+  }
+  
+  try {
+    const studentSnapshot = await db.ref('students/' + rollNo).once('value');
+    if (!studentSnapshot.exists()) {
+      await addNewStudent(rollNo);
+      const newSnapshot = await db.ref('students/' + rollNo).once('value');
+      if (!newSnapshot.exists()) return;
+    }
+    
+    const student = studentSnapshot.val();
+    const testId = `${currentTestType}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const isAbsent = obtainedMarks.toUpperCase() === 'A';
+    const numericObtained = isAbsent ? 0 : parseFloat(obtainedMarks);
+    const percentage = isAbsent ? 0 : ((numericObtained / totalMarks) * 100).toFixed(1);
+    
+    const testData = {
+      testType: currentTestType,
+      testDate: testDate,
+      subject: subject,
+      totalMarks: parseFloat(totalMarks),
+      obtainedMarks: obtainedMarks,
+      numericObtained: numericObtained,
+      percentage: percentage,
+      rollNo: rollNo,
+      studentName: student.name,
+      studentClass: student.class,
+      isAbsent: isAbsent,
+      addedAt: Date.now()
+    };
+    
+    await db.ref(`tests/${testId}`).set(testData);
+    
+    alert(`✅ ${currentTestType} Test added!\nDate: ${testDate}\nStudent: ${student.name}\nSubject: ${subject}\nMarks: ${obtainedMarks}/${totalMarks}`);
+    
+    document.getElementById('subject').value = '';
+    document.getElementById('totalMarks').value = '';
+    document.getElementById('obtainedMarks').value = '';
+    
+    loadStats();
+    
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+
+// Load Statistics
+async function loadStats() {
+  try {
+    const testsSnapshot = await db.ref('tests').once('value');
+    const studentsSnapshot = await db.ref('students').once('value');
+    
+    let totalTests = 0;
+    let totalStudents = 0;
+    let testTypeCounts = {};
+    
+    if (testsSnapshot.exists()) {
+      const tests = testsSnapshot.val();
+      totalTests = Object.keys(tests).length;
+      
+      // Count by test type
+      for (const testId in tests) {
+        const test = tests[testId];
+        const type = test.testType;
+        testTypeCounts[type] = (testTypeCounts[type] || 0) + 1;
+      }
+    }
+    
+    if (studentsSnapshot.exists()) {
+      totalStudents = Object.keys(studentsSnapshot.val()).length;
+    }
+    
+    let statsHTML = `
+      <div class="stat-card">
+        <h4>📊 Total Students</h4>
+        <p style="font-size:24px;color:#3498db;margin:5px 0">${totalStudents}</p>
+      </div>
+      <div class="stat-card">
+        <h4>📝 Total Tests</h4>
+        <p style="font-size:24px;color:#27ae60;margin:5px 0">${totalTests}</p>
+      </div>
+    `;
+    
+    // Add top test types
+    const sortedTypes = Object.entries(testTypeCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+    
+    sortedTypes.forEach(([type, count]) => {
+      statsHTML += `
+        <div class="stat-card">
+          <h4>${type} Tests</h4>
+          <p style="font-size:24px;color:#e74c3c;margin:5px 0">${count}</p>
+        </div>
+      `;
+    });
+    
+    document.getElementById('statsContainer').innerHTML = statsHTML;
+    
+  } catch (error) {
+    console.error("Stats error:", error);
+  }
+}
+
+// Load Test Results by Type
+async function loadTestResults() {
+  const selectedType = document.getElementById('selectedTestType').value;
+  const searchTerm = document.getElementById('searchStudent').value.toLowerCase().trim();
+  
+  if (!selectedType) {
+    document.getElementById('testResults').innerHTML = '<p style="color:#666;text-align:center">Select a test type</p>';
+    return;
+  }
+  
+  try {
+    const snapshot = await db.ref('tests').orderByChild('testType').equalTo(selectedType).once('value');
+    
+    if (!snapshot.exists()) {
+      document.getElementById('testResults').innerHTML = 
+        `<div class="test-header">${selectedType} Test Results</div>
+         <p style="color:#666;text-align:center;padding:20px">No results found</p>`;
+      return;
+    }
+    
+    const tests = snapshot.val();
+    const students = {};
+    const subjects = new Set();
+    const testDates = new Set();
+    
+    for (const testId in tests) {
+      const test = tests[testId];
+      const rollNo = test.rollNo;
+      
+      if (searchTerm && 
+          !rollNo.toLowerCase().includes(searchTerm) && 
+          !test.studentName.toLowerCase().includes(searchTerm)) {
+        continue;
+      }
+      
+      if (!students[rollNo]) {
+        students[rollNo] = {
+          name: test.studentName,
+          class: test.studentClass,
+          subjects: {},
+          totalObtained: 0,
+          totalMarks: 0
+        };
+      }
+      
+      students[rollNo].subjects[test.subject] = {
+        obtained: test.obtainedMarks,
+        total: test.totalMarks,
+        numeric: test.numericObtained,
+        date: test.testDate
+      };
+      
+      students[rollNo].totalObtained += test.numericObtained;
+      students[rollNo].totalMarks += test.totalMarks;
+      
+      subjects.add(test.subject);
+      if (test.testDate) testDates.add(test.testDate);
+    }
+    
+    const subjectsArray = Array.from(subjects).sort();
+    const datesArray = Array.from(testDates).sort();
+    
+    let html = `<div class="test-header">${selectedType} Test Results</div>`;
+    
+    if (datesArray.length > 0) {
+      html += `<div class="test-date-display">Test Date: ${datesArray.join(', ')}</div>`;
+    }
+    
+    if (subjectsArray.length === 0) {
+      html += '<p style="color:#666;text-align:center">No data</p>';
+    } else {
+      html += `<div class="scroll-container">`;
+      html += `<table class="result-table">`;
+      
+      // Header rows like your image
+      html += `<tr class="marks-row"><td rowspan="2">Roll no</td><td rowspan="2">Name</td>`;
+      subjectsArray.forEach(subject => {
+        const student = Object.values(students)[0];
+        const totalMarks = student?.subjects[subject]?.total || 0;
+        html += `<td>${totalMarks}</td>`;
+      });
+      html += `<td rowspan="2">Ob</td><td rowspan="2">Delete</td></tr>`;
+      
+      html += `<tr class="subject-row">`;
+      subjectsArray.forEach(subject => {
+        html += `<td>${subject}</td>`;
+      });
+      html += `</tr>`;
+      
+      // Student rows
+      for (const rollNo in students) {
+        const student = students[rollNo];
+        const percentage = student.totalMarks > 0 ? ((student.totalObtained / student.totalMarks) * 100).toFixed(1) : 0;
+        
+        html += `<tr class="student-row"><td>${rollNo}</td><td>${student.name}</td>`;
+        
+        subjectsArray.forEach(subject => {
+          if (student.subjects[subject]) {
+            html += `<td>${student.subjects[subject].obtained}</td>`;
+          } else {
+            html += `<td>-</td>`;
+          }
+        });
+        
+        html += `<td>${student.totalObtained}<br><small>${percentage}%</small></td>`;
+        html += `<td><button class="delete-btn" onclick="deleteTest('${rollNo}','${selectedType}')">✕</button></td></tr>`;
+      }
+      
+      html += `</table></div>`;
+    }
+    
+    document.getElementById('testResults').innerHTML = html;
+    
+  } catch (error) {
+    console.error("Error:", error);
+    document.getElementById('testResults').innerHTML = '<p style="color:red">Error loading results</p>';
+  }
+}
+
+// Load All Student Results
+async function loadAllStudentResults() {
+  try {
+    const studentsSnapshot = await db.ref('students').once('value');
+    const testsSnapshot = await db.ref('tests').once('value');
+    
+    if (!studentsSnapshot.exists()) {
+      document.getElementById('allStudentResults').innerHTML = '<p style="color:#666;text-align:center">No students found</p>';
+      return;
+    }
+    
+    const students = studentsSnapshot.val();
+    const tests = testsSnapshot.exists() ? testsSnapshot.val() : {};
+    
+    // Populate student filter dropdown
+    const filterSelect = document.getElementById('filterStudent');
+    filterSelect.innerHTML = '<option value="">Select Student</option>';
+    
+    Object.keys(students).forEach(rollNo => {
+      const option = document.createElement('option');
+      option.value = rollNo;
+      option.textContent = `${rollNo} - ${students[rollNo].name}`;
+      filterSelect.appendChild(option);
+    });
+    
+    // Get filter values
+    const selectedRoll = document.getElementById('filterStudent').value;
+    const searchTerm = document.getElementById('searchAll').value.toLowerCase().trim();
+    
+    let html = `<div class="test-header">All Student Results</div>`;
+    
+    for (const rollNo in students) {
+      const student = students[rollNo];
+      
+      // Apply filters
+      if (selectedRoll && selectedRoll !== rollNo) continue;
+      if (searchTerm && 
+          !rollNo.toLowerCase().includes(searchTerm) && 
+          !student.name.toLowerCase().includes(searchTerm)) {
+        continue;
+      }
+      
+      // Get all tests for this student
+      const studentTests = [];
+      for (const testId in tests) {
+        if (tests[testId].rollNo === rollNo) {
+          studentTests.push(tests[testId]);
+        }
+      }
+      
+      if (studentTests.length === 0) continue;
+      
+      // Group tests by type
+      const testsByType = {};
+      studentTests.forEach(test => {
+        if (!testsByType[test.testType]) testsByType[test.testType] = [];
+        testsByType[test.testType].push(test);
+      });
+      
+      html += `<div class="student-info" style="margin:15px 0">
+                <strong>${student.name}</strong> (Roll: ${rollNo}, Class: ${student.class || 'N/A'})
+               </div>`;
+      
+      for (const testType in testsByType) {
+        const typeTests = testsByType[testType];
+        const subjects = typeTests.map(t => t.subject);
+        const dates = [...new Set(typeTests.map(t => t.testDate))].sort();
+        
+        html += `<div style="margin:10px 0;color:#666"><strong>${testType} Test</strong> (Date: ${dates.join(', ')})</div>`;
+        html += `<div class="scroll-container">`;
+        html += `<table class="result-table">`;
+        html += `<tr class="subject-row"><td>Subject</td><td>Date</td><td>Total Marks</td><td>Obtained</td><td>Percentage</td></tr>`;
+        
+        let typeTotal = 0;
+        let typeObtained = 0;
+        
+        typeTests.forEach(test => {
+          html += `<tr>
+            <td>${test.subject}</td>
+            <td>${test.testDate}</td>
+            <td>${test.totalMarks}</td>
+            <td>${test.obtainedMarks}</td>
+            <td>${test.percentage}%</td>
+          </tr>`;
+          typeTotal += test.totalMarks;
+          typeObtained += test.numericObtained;
+        });
+        
+        const typePercentage = typeTotal > 0 ? ((typeObtained / typeTotal) * 100).toFixed(1) : 0;
+        html += `<tr style="background:#ecf0f1;font-weight:bold">
+          <td colspan="2">Total</td>
+          <td>${typeTotal}</td>
+          <td>${typeObtained}</td>
+          <td>${typePercentage}%</td>
+        </tr>`;
+        html += `</table></div><br>`;
+      }
+    }
+    
+    document.getElementById('allStudentResults').innerHTML = html;
+    
+  } catch (error) {
+    console.error("Error:", error);
+    document.getElementById('allStudentResults').innerHTML = '<p style="color:red">Error loading results</p>';
+  }
+}
+
+// Delete Test
+async function deleteTest(rollNo, testType) {
+  if (!confirm(`Delete all ${testType} tests for ${rollNo}?`)) return;
+  
+  try {
+    const snapshot = await db.ref('tests').orderByChild('rollNo').equalTo(rollNo).once('value');
+    let deleted = 0;
+    
+    snapshot.forEach(testSnap => {
+      const test = testSnap.val();
+      if (test.testType === testType) {
+        db.ref('tests/' + testSnap.key).remove();
+        deleted++;
+      }
+    });
+    
+    alert(`✅ Deleted ${deleted} tests`);
+    loadTestResults();
+    loadStats();
+    
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+
+// Export All Students to Excel (Separate Sheets)
+async function exportAllStudentsToExcel() {
+  try {
+    const studentsSnapshot = await db.ref('students').once('value');
+    const testsSnapshot = await db.ref('tests').once('value');
+    
+    if (!studentsSnapshot.exists()) {
+      alert('No students found');
+      return;
+    }
+    
+    const students = studentsSnapshot.val();
+    const tests = testsSnapshot.exists() ? testsSnapshot.val() : {};
+    
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+    
+    // Create summary sheet
+    const summaryData = [['STUDENT SUMMARY REPORT', '', '', '', '', '', '']];
+    summaryData.push(['Roll No', 'Name', 'Class', 'Total Tests', 'Total Marks', 'Obtained Marks', 'Overall %']);
+    
+    // Process each student
+    let studentCount = 0;
+    
+    for (const rollNo in students) {
+      const student = students[rollNo];
+      const studentTests = [];
+      
+      // Get all tests for this student
+      for (const testId in tests) {
+        if (tests[testId].rollNo === rollNo) {
+          studentTests.push(tests[testId]);
+        }
+      }
+      
+      if (studentTests.length === 0) continue;
+      
+      studentCount++;
+      
+      // Group tests by type
+      const testsByType = {};
+      studentTests.forEach(test => {
+        if (!testsByType[test.testType]) testsByType[test.testType] = [];
+        testsByType[test.testType].push(test);
+      });
+      
+      // Create student sheet
+      const studentSheetData = [];
+      
+      // Student header
+      studentSheetData.push(['STUDENT DETAILS']);
+      studentSheetData.push(['Roll Number:', rollNo]);
+      studentSheetData.push(['Name:', student.name]);
+      studentSheetData.push(['Class:', student.class || 'N/A']);
+      studentSheetData.push(['Total Tests:', studentTests.length]);
+      studentSheetData.push([]);
+      
+      let overallTotal = 0;
+      let overallObtained = 0;
+      
+      // Add each test type
+      for (const testType in testsByType) {
+        const typeTests = testsByType[testType];
+        
+        studentSheetData.push([`${testType} TEST RESULTS`]);
+        studentSheetData.push(['Subject', 'Date', 'Total Marks', 'Obtained Marks', 'Percentage', 'Status']);
+        
+        let typeTotal = 0;
+        let typeObtained = 0;
+        
+        typeTests.forEach(test => {
+          studentSheetData.push([
+            test.subject,
+            test.testDate,
+            test.totalMarks,
+            test.obtainedMarks,
+            test.percentage + '%',
+            test.isAbsent ? 'Absent' : 'Present'
+          ]);
+          typeTotal += test.totalMarks;
+          typeObtained += test.numericObtained;
+        });
+        
+        const typePercentage = typeTotal > 0 ? ((typeObtained / typeTotal) * 100).toFixed(1) : 0;
+        studentSheetData.push(['TYPE TOTAL', '', typeTotal, typeObtained, typePercentage + '%', '']);
+        studentSheetData.push([]);
+        
+        overallTotal += typeTotal;
+        overallObtained += typeObtained;
+      }
+      
+      // Add overall summary
+      const overallPercentage = overallTotal > 0 ? ((overallObtained / overallTotal) * 100).toFixed(1) : 0;
+      studentSheetData.push(['OVERALL SUMMARY']);
+      studentSheetData.push(['Total Tests:', studentTests.length]);
+      studentSheetData.push(['Total Marks:', overallTotal]);
+      studentSheetData.push(['Obtained Marks:', overallObtained]);
+      studentSheetData.push(['Overall Percentage:', overallPercentage + '%']);
+      studentSheetData.push(['Grade:', getGrade(overallPercentage)]);
+      
+      // Add to summary sheet
+      summaryData.push([
+        rollNo,
+        student.name,
+        student.class || 'N/A',
+        studentTests.length,
+        overallTotal,
+        overallObtained,
+        overallPercentage + '%'
+      ]);
+      
+      // Create sheet (max 31 characters for sheet name)
+      const sheetName = `${rollNo}_${student.name.substring(0, 20)}`
+        .replace(/[\\/*[\]:?]/g, '')
+        .substring(0, 31);
+      
+      const ws = XLSX.utils.aoa_to_sheet(studentSheetData);
+      
+      // Set column widths
+      const wscols = [
+        {wch: 20}, {wch: 15}, {wch: 12}, 
+        {wch: 15}, {wch: 12}, {wch: 10}
+      ];
+      ws['!cols'] = wscols;
+      
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    }
+    
+    // Create summary sheet
+    const summaryWs = XLSX.utils.aoa_to_sheet(summaryData);
+    
+    // Merge title cell
+    summaryWs['!merges'] = [{s: {r: 0, c: 0}, e: {r: 0, c: 6}}];
+    
+    XLSX.utils.book_append_sheet(wb, summaryWs, "Summary");
+    
+    // Export file
+    const fileName = `Student_Test_Results_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    
+    alert(`✅ Exported ${studentCount} students to Excel with separate sheets`);
+    
+  } catch (error) {
+    console.error("Export error:", error);
+    alert('Error: ' + error.message);
+  }
+}
+
+// Helper function to get grade
+function getGrade(percentage) {
+  if (percentage >= 90) return 'A+';
+  if (percentage >= 80) return 'A';
+  if (percentage >= 70) return 'B';
+  if (percentage >= 60) return 'C';
+  if (percentage >= 50) return 'D';
+  return 'F';
+}
+
+// Export Summary Report
+async function exportSummaryToExcel() {
+  try {
+    const studentsSnapshot = await db.ref('students').once('value');
+    const testsSnapshot = await db.ref('tests').once('value');
+    
+    if (!studentsSnapshot.exists()) {
+      alert('No data found');
+      return;
+    }
+    
+    const students = studentsSnapshot.val();
+    const tests = testsSnapshot.exists() ? testsSnapshot.val() : {};
+    
+    const summaryData = [
+      ['STUDENT PERFORMANCE SUMMARY REPORT'],
+      ['Generated on:', new Date().toLocaleString()],
+      [],
+      ['Roll No', 'Name', 'Class', 'Total Tests', 'Total Marks', 'Obtained', 'Percentage', 'Grade']
+    ];
+    
+    for (const rollNo in students) {
+      const student = students[rollNo];
+      const studentTests = [];
+      
+      for (const testId in tests) {
+        if (tests[testId].rollNo === rollNo) {
+          studentTests.push(tests[testId]);
+        }
+      }
+      
+      if (studentTests.length === 0) continue;
+      
+      let totalMarks = 0;
+      let totalObtained = 0;
+      
+      studentTests.forEach(test => {
+        totalMarks += test.totalMarks;
+        totalObtained += test.numericObtained;
+      });
+      
+      const percentage = totalMarks > 0 ? ((totalObtained / totalMarks) * 100).toFixed(1) : 0;
+      
+      summaryData.push([
+        rollNo,
+        student.name,
+        student.class || 'N/A',
+        studentTests.length,
+        totalMarks,
+        totalObtained,
+        percentage + '%',
+        getGrade(parseFloat(percentage))
+      ]);
+    }
+    
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(summaryData);
+    
+    // Merge title
+    ws['!merges'] = [
+      {s: {r: 0, c: 0}, e: {r: 0, c: 7}},
+      {s: {r: 1, c: 0}, e: {r: 1, c: 7}}
+    ];
+    
+    XLSX.utils.book_append_sheet(wb, ws, "Performance Summary");
+    
+    const fileName = `Performance_Summary_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    
+    alert('✅ Summary report exported successfully');
+    
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+
+// Export by Test Type
+async function exportByTestType() {
+  try {
+    const testsSnapshot = await db.ref('tests').once('value');
+    if (!testsSnapshot.exists()) {
+      alert('No test data found');
+      return;
+    }
+    
+    const tests = testsSnapshot.val();
+    const testTypesData = {};
+    
+    // Group by test type
+    for (const testId in tests) {
+      const test = tests[testId];
+      const type = test.testType;
+      
+      if (!testTypesData[type]) {
+        testTypesData[type] = [];
+      }
+      testTypesData[type].push(test);
+    }
+    
+    const wb = XLSX.utils.book_new();
+    
+    // Create sheet for each test type
+    for (const type in testTypesData) {
+      const typeTests = testTypesData[type];
+      
+      // Group by student for this type
+      const students = {};
+      typeTests.forEach(test => {
+        const rollNo = test.rollNo;
+        if (!students[rollNo]) {
+          students[rollNo] = {
+            name: test.studentName,
+            class: test.studentClass,
+            tests: []
+          };
+        }
+        students[rollNo].tests.push(test);
+      });
+      
+      const sheetData = [
+        [`${type} TEST RESULTS`],
+        ['Date:', [...new Set(typeTests.map(t => t.testDate))].join(', ')],
+        [],
+        ['Roll No', 'Name', 'Class', 'Total Marks', 'Obtained', 'Percentage']
+      ];
+      
+      for (const rollNo in students) {
+        const student = students[rollNo];
+        let total = 0;
+        let obtained = 0;
+        
+        student.tests.forEach(test => {
+          total += test.totalMarks;
+          obtained += test.numericObtained;
+        });
+        
+        const percentage = total > 0 ? ((obtained / total) * 100).toFixed(1) : 0;
+        
+        sheetData.push([
+          rollNo,
+          student.name,
+          student.class || 'N/A',
+          total,
+          obtained,
+          percentage + '%'
+        ]);
+      }
+      
+      const ws = XLSX.utils.aoa_to_sheet(sheetData);
+      
+      // Merge title
+      ws['!merges'] = [
+        {s: {r: 0, c: 0}, e: {r: 0, c: 5}},
+        {s: {r: 1, c: 0}, e: {r: 1, c: 5}}
+      ];
+      
+      XLSX.utils.book_append_sheet(wb, ws, type.substring(0, 31));
+    }
+    
+    const fileName = `Test_Type_Reports_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    
+    alert(`✅ Exported ${Object.keys(testTypesData).length} test types`);
+    
+  } catch (error) {
+    alert('Error: ' + error.message);
+  }
+}
+
+// Search Student Result (Public)
+async function searchStudentResult() {
+  const rollNo = document.getElementById('searchRoll').value.trim();
+  if (!rollNo) return alert('Enter roll number');
+  
+  try {
+    const studentSnapshot = await db.ref('students/' + rollNo).once('value');
+    if (!studentSnapshot.exists()) {
+      document.getElementById('publicResult').innerHTML = 
+        '<div style="color:red;padding:20px;text-align:center">Student not found</div>';
+      document.getElementById('publicResult').classList.remove('hidden');
+      return;
+    }
+    
+    const student = studentSnapshot.val();
+    const testsSnapshot = await db.ref('tests').orderByChild('rollNo').equalTo(rollNo).once('value');
+    
+    if (!testsSnapshot.exists()) {
+      document.getElementById('publicResult').innerHTML = 
+        `<div class="student-info">
+         <strong>Student:</strong> ${student.name} | 
+         <strong>Roll No:</strong> ${rollNo} | 
+         <strong>Class:</strong> ${student.class || 'N/A'}
+         </div>
+         <p style="color:#666;text-align:center">No test results found</p>`;
+      document.getElementById('publicResult').classList.remove('hidden');
+      return;
+    }
+    
+    const tests = testsSnapshot.val();
+    
+    // Group by test type
+    const testTypes = {};
+    for (const testId in tests) {
+      const test = tests[testId];
+      if (!testTypes[test.testType]) testTypes[test.testType] = [];
+      testTypes[test.testType].push(test);
+    }
+    
+    let html = `<div class="student-info">
+                <strong>Student:</strong> ${student.name} | 
+                <strong>Roll No:</strong> ${rollNo} | 
+                <strong>Class:</strong> ${student.class || 'N/A'}
+                </div>`;
+    
+    for (const type in testTypes) {
+      const typeTests = testTypes[type];
+      const dates = [...new Set(typeTests.map(t => t.testDate))].sort();
+      
+      html += `<div class="test-header">${type} Test ${dates.length ? `(Date: ${dates.join(', ')})` : ''}</div>`;
+      html += `<div class="scroll-container">`;
+      html += `<table class="result-table">`;
+      html += `<tr class="subject-row"><td>Subject</td><td>Date</td><td>Total</td><td>Obtained</td><td>Percentage</td></tr>`;
+      
+      let total = 0;
+      let obtained = 0;
+      
+      typeTests.forEach(test => {
+        html += `<tr>
+          <td>${test.subject}</td>
+          <td>${test.testDate}</td>
+          <td>${test.totalMarks}</td>
+          <td>${test.obtainedMarks}</td>
+          <td>${test.percentage}%</td>
+        </tr>`;
+        total += test.totalMarks;
+        obtained += test.numericObtained;
+      });
+      
+      const percentage = total > 0 ? ((obtained / total) * 100).toFixed(1) : 0;
+      html += `<tr style="background:#ecf0f1;font-weight:bold">
+        <td colspan="2">Total</td>
+        <td>${total}</td>
+        <td>${obtained}</td>
+        <td>${percentage}%</td>
+      </tr>`;
+      html += `</table></div><br>`;
+    }
+    
+    document.getElementById('publicResult').innerHTML = html;
+    document.getElementById('publicResult').classList.remove('hidden');
+    
+  } catch (error) {
+    document.getElementById('publicResult').innerHTML = '<div style="color:red">Error loading results</div>';
+    document.getElementById('publicResult').classList.remove('hidden');
+  }
+}
+
+// Login
+function login() {
+  const email = document.getElementById('email').value || 'admin@example.com';
+  const password = document.getElementById('password').value || 'admin123';
+  
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => alert('Login successful'))
+    .catch(error => alert('Login failed: ' + error.message));
+}
+
+// Logout
+function logout() {
+  auth.signOut().then(() => alert('Logged out'));
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('testDate').value = new Date().toISOString().split('T')[0];
+});
+</script>
+</body>
+</html>
