@@ -27,6 +27,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
+            padding-bottom: 60px;
         }
         
         .navbar {
@@ -42,29 +43,30 @@
         .section-card {
             background: white;
             border-radius: 12px;
-            padding: 30px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-            margin-bottom: 30px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
             border-top: 4px solid var(--secondary);
         }
         
         .section-title {
             color: var(--primary);
             border-bottom: 2px solid var(--secondary);
-            padding-bottom: 12px;
-            margin-bottom: 25px;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
             font-weight: 700;
-            font-size: 1.8rem;
+            font-size: 1.5rem;
         }
         
         .btn-primary-custom {
             background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);
             border: none;
-            padding: 12px 30px;
+            padding: 12px 20px;
             border-radius: 8px;
             color: white;
             font-weight: 600;
             transition: all 0.3s;
+            width: 100%;
         }
         
         .btn-primary-custom:hover {
@@ -76,14 +78,15 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 25px;
+            padding: 15px;
+            margin-bottom: 15px;
         }
         
         .result-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
         }
         
         .result-table th {
@@ -92,15 +95,17 @@
             text-align: center;
             vertical-align: middle;
             font-weight: 600;
-            padding: 12px 8px;
+            padding: 8px 4px;
             border: 1px solid #dee2e6;
+            font-size: 0.85rem;
         }
         
         .result-table td {
             text-align: center;
             vertical-align: middle;
-            padding: 10px 8px;
+            padding: 6px 4px;
             border: 1px solid #dee2e6;
+            font-size: 0.85rem;
         }
         
         .subject-header {
@@ -113,7 +118,7 @@
         }
         
         .test-type-col {
-            min-width: 100px;
+            min-width: 60px;
             background: #f8f9fa;
         }
         
@@ -131,11 +136,14 @@
             color: var(--primary);
             text-align: left;
             background: #f8f9fa;
+            min-width: 80px;
+            max-width: 80px;
+            word-wrap: break-word;
         }
         
         .marks-cell {
             font-weight: 500;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
         }
         
         .absent-mark {
@@ -152,27 +160,27 @@
         .status-pass {
             background: var(--success);
             color: white;
-            padding: 6px 15px;
+            padding: 4px 10px;
             border-radius: 4px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             display: inline-block;
         }
         
         .status-fail {
             background: var(--danger);
             color: white;
-            padding: 6px 15px;
+            padding: 4px 10px;
             border-radius: 4px;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             display: inline-block;
         }
         
         .total-row {
             background: #f8f9fa !important;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             border-top: 3px solid var(--primary);
         }
         
@@ -184,16 +192,16 @@
         .student-card {
             background: white;
             border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
+            padding: 15px;
+            margin-bottom: 10px;
             border-left: 4px solid var(--secondary);
             transition: all 0.3s;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
         
         .student-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .student-no-results {
@@ -203,7 +211,8 @@
         .alert-custom {
             border-radius: 8px;
             border-left: 4px solid;
-            padding: 15px;
+            padding: 12px;
+            font-size: 0.9rem;
         }
         
         .form-control:focus {
@@ -211,50 +220,192 @@
             box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
         }
         
-        @media (max-width: 768px) {
+        .mobile-only {
+            display: block;
+        }
+        
+        .desktop-only {
+            display: none;
+        }
+        
+        @media (min-width: 768px) {
+            .mobile-only {
+                display: none;
+            }
+            
+            .desktop-only {
+                display: block;
+            }
+            
+            .btn-primary-custom {
+                width: auto;
+            }
+            
             .section-card {
-                padding: 20px 15px;
+                padding: 30px;
             }
             
             .result-table {
-                font-size: 0.85rem;
+                font-size: 1rem;
             }
             
             .result-table th,
             .result-table td {
-                padding: 8px 4px;
+                padding: 10px 8px;
+                font-size: 0.95rem;
+            }
+            
+            .subject-name {
+                min-width: 120px;
+                max-width: 120px;
             }
         }
         
         .footer {
             background: var(--primary);
             color: white;
-            padding: 20px 0;
-            margin-top: 40px;
+            padding: 15px 0;
+            margin-top: 30px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            z-index: 1000;
         }
         
         .table-container {
             overflow-x: auto;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-radius: 8px;
             border: 1px solid #dee2e6;
+            -webkit-overflow-scrolling: touch;
         }
         
         .no-results-badge {
             background: var(--warning);
             color: white;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 15px;
+            font-size: 0.75rem;
+        }
+        
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+        
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--primary);
             font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .mobile-nav-item.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .mobile-nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 3px;
+        }
+        
+        /* Mobile specific adjustments */
+        .mobile-form-group {
+            margin-bottom: 15px;
+        }
+        
+        .mobile-btn {
+            padding: 12px;
+            font-size: 1rem;
+        }
+        
+        .mobile-input {
+            padding: 12px;
+            font-size: 1rem;
+        }
+        
+        /* Admin panel warning for mobile */
+        .admin-warning {
+            display: none;
+            background: var(--warning);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px;
+        }
+        
+        @media (max-width: 767px) {
+            .admin-warning {
+                display: block;
+            }
+            
+            #adminSection {
+                display: none !important;
+            }
+            
+            .navbar {
+                padding: 10px 0;
+            }
+            
+            .navbar-brand {
+                font-size: 1.1rem;
+            }
+            
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            
+            body {
+                padding-bottom: 100px;
+            }
+        }
+        
+        /* Print styles */
+        @media print {
+            .mobile-nav,
+            .navbar,
+            .footer,
+            #downloadPDFBtn,
+            .no-print {
+                display: none !important;
+            }
+            
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .section-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- Desktop Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark desktop-only">
         <div class="container">
             <a class="navbar-brand fw-bold" href="#">
                 <i class="fas fa-graduation-cap me-2"></i>
-                Result Management System
+                Result Management
             </a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
@@ -267,13 +418,36 @@
         </div>
     </nav>
 
-    <div class="container mt-4 mb-4" id="contentArea">
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav mobile-only">
+        <a href="#" class="mobile-nav-item active" id="mobileHomeLink">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="mobile-nav-item" id="mobileCheckResultLink">
+            <i class="fas fa-search"></i>
+            <span>Check Result</span>
+        </a>
+        <a href="#" class="mobile-nav-item desktop-only" id="mobileAdminLink">
+            <i class="fas fa-user-shield"></i>
+            <span>Admin</span>
+        </a>
+    </div>
+
+    <div class="container mt-3 mb-5" id="contentArea">
+        <!-- Admin Warning for Mobile -->
+        <div class="admin-warning mobile-only">
+            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
+            <h5>Admin Panel Not Available</h5>
+            <p>Please use a desktop computer to access the admin panel.</p>
+        </div>
+
         <!-- Home Section -->
         <div id="homeSection">
             <div class="section-card text-center">
-                <h1 class="display-5 mb-3">Student Result Management System</h1>
+                <h1 class="display-5 mb-3">Student Result Management</h1>
                 <p class="lead mb-4">Access academic results with detailed test-wise analysis</p>
-                <button class="btn btn-primary-custom btn-lg" id="goToCheckResult">
+                <button class="btn btn-primary-custom btn-lg mobile-btn" id="goToCheckResult">
                     Check Your Result Now
                 </button>
             </div>
@@ -314,12 +488,12 @@
                 <h2 class="section-title">Check Student Result</h2>
                 <div class="row">
                     <div class="col-md-6">
-                        <div class="mb-3">
+                        <div class="mobile-form-group">
                             <label class="form-label fw-semibold">Enter Roll Number</label>
-                            <input type="text" class="form-control form-control-lg" id="rollNumber" placeholder="e.g., 0283, 0123">
+                            <input type="text" class="form-control form-control-lg mobile-input" id="rollNumber" placeholder="e.g., 0283, 0123">
                             <div class="form-text">Only roll numbers starting with 0 are allowed</div>
                         </div>
-                        <button class="btn btn-primary-custom w-100 py-3" id="fetchResultBtn">
+                        <button class="btn btn-primary-custom w-100 py-3 mobile-btn" id="fetchResultBtn">
                             <i class="fas fa-search me-2"></i>Fetch Result
                         </button>
                         <div id="rollMessage" class="mt-3"></div>
@@ -333,37 +507,37 @@
         <div id="authSection" style="display:none;">
             <div class="section-card" style="max-width: 500px; margin: 0 auto;">
                 <h2 class="section-title">Admin Login</h2>
-                <div class="mb-3">
+                <div class="mobile-form-group">
                     <label class="form-label">Email Address</label>
-                    <input type="email" class="form-control" id="email" placeholder="admin@example.com">
+                    <input type="email" class="form-control mobile-input" id="email" placeholder="admin@example.com">
                 </div>
-                <div class="mb-3">
+                <div class="mobile-form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="Enter password">
+                    <input type="password" class="form-control mobile-input" id="password" placeholder="Enter password">
                 </div>
-                <button class="btn btn-primary-custom w-100 py-2" id="loginBtn">
+                <button class="btn btn-primary-custom w-100 py-3 mobile-btn" id="loginBtn">
                     <i class="fas fa-sign-in-alt me-2"></i>Login
                 </button>
                 <div id="authMessage" class="mt-3"></div>
             </div>
         </div>
 
-        <!-- Admin Panel -->
+        <!-- Admin Panel (Desktop Only) -->
         <div id="adminSection" style="display:none;">
             <h2 class="section-title mb-4"><i class="fas fa-user-shield me-2"></i>Admin Panel</h2>
             
             <!-- Add Student -->
             <div class="section-card mb-4">
                 <h5 class="mb-3"><i class="fas fa-user-plus me-2"></i>Add New Student</h5>
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" id="addRollNumber" placeholder="Roll Number (0283)">
+                <div class="row g-2">
+                    <div class="col-md-3 col-12">
+                        <input type="text" class="form-control mobile-input" id="addRollNumber" placeholder="Roll Number (0283)">
                     </div>
-                    <div class="col-md-6">
-                        <input type="text" class="form-control" id="addStudentName" placeholder="Full Name">
+                    <div class="col-md-6 col-12">
+                        <input type="text" class="form-control mobile-input" id="addStudentName" placeholder="Full Name">
                     </div>
-                    <div class="col-md-3">
-                        <button class="btn btn-primary-custom w-100" id="addStudentBtn">Add Student</button>
+                    <div class="col-md-3 col-12">
+                        <button class="btn btn-primary-custom w-100 mobile-btn" id="addStudentBtn">Add Student</button>
                     </div>
                 </div>
                 <div id="addStudentMessage" class="mt-3"></div>
@@ -372,29 +546,29 @@
             <!-- Add/Update Marks -->
             <div class="section-card mb-4">
                 <h5 class="mb-3"><i class="fas fa-edit me-2"></i>Add/Update Marks</h5>
-                <div class="row g-3 mb-3">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" id="updateRollNumber" placeholder="Roll Number">
+                <div class="row g-2 mb-3">
+                    <div class="col-md-4 col-12">
+                        <input type="text" class="form-control mobile-input" id="updateRollNumber" placeholder="Roll Number">
                     </div>
-                    <div class="col-md-8">
-                        <input type="text" class="form-control" id="studentName" placeholder="Student Name" readonly>
+                    <div class="col-md-8 col-12">
+                        <input type="text" class="form-control mobile-input" id="studentName" placeholder="Student Name" readonly>
                     </div>
                 </div>
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" id="subject" placeholder="Subject">
+                <div class="row g-2">
+                    <div class="col-md-3 col-12">
+                        <input type="text" class="form-control mobile-input" id="subject" placeholder="Subject">
                     </div>
-                    <div class="col-md-2">
-                        <input type="text" class="form-control" id="testType" placeholder="T1/T2/Final" value="Final">
+                    <div class="col-md-2 col-6">
+                        <input type="text" class="form-control mobile-input" id="testType" placeholder="T1/T2/Final" value="Final">
                     </div>
-                    <div class="col-md-2">
-                        <input type="number" class="form-control" id="totalMarks" value="100">
+                    <div class="col-md-2 col-6">
+                        <input type="number" class="form-control mobile-input" id="totalMarks" value="100">
                     </div>
-                    <div class="col-md-3">
-                        <input type="text" class="form-control" id="obtainedMarks" placeholder="Marks or 'A'">
+                    <div class="col-md-3 col-12">
+                        <input type="text" class="form-control mobile-input" id="obtainedMarks" placeholder="Marks or 'A'">
                     </div>
-                    <div class="col-md-2">
-                        <button class="btn btn-primary-custom w-100" id="addMarksBtn">Save</button>
+                    <div class="col-md-2 col-12">
+                        <button class="btn btn-primary-custom w-100 mobile-btn" id="addMarksBtn">Save</button>
                     </div>
                 </div>
                 <div id="updateMarksMessage" class="mt-3"></div>
@@ -404,8 +578,8 @@
             <div class="section-card mb-4">
                 <h5 class="mb-3"><i class="fas fa-list me-2"></i>All Students</h5>
                 <div class="input-group mb-3">
-                    <input type="text" class="form-control" id="searchStudent" placeholder="Search by roll number or name">
-                    <button class="btn btn-primary-custom" id="searchBtn">Search</button>
+                    <input type="text" class="form-control mobile-input" id="searchStudent" placeholder="Search by roll number or name">
+                    <button class="btn btn-primary-custom mobile-btn" id="searchBtn">Search</button>
                 </div>
                 <div id="allResultsDisplay"></div>
             </div>
@@ -413,15 +587,15 @@
             <!-- Delete Options -->
             <div class="section-card mb-4">
                 <h5 class="mb-3"><i class="fas fa-trash me-2"></i>Delete Options</h5>
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <input type="text" class="form-control" id="deleteRollNumber" placeholder="Enter Roll Number">
+                <div class="row g-2">
+                    <div class="col-md-4 col-12">
+                        <input type="text" class="form-control mobile-input" id="deleteRollNumber" placeholder="Enter Roll Number">
                     </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-warning w-100" id="deleteResultBtn">Delete Results Only</button>
+                    <div class="col-md-4 col-6">
+                        <button class="btn btn-warning w-100 mobile-btn" id="deleteResultBtn">Delete Results Only</button>
                     </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-danger w-100" id="deleteStudentBtn">Delete Complete Student</button>
+                    <div class="col-md-4 col-6">
+                        <button class="btn btn-danger w-100 mobile-btn" id="deleteStudentBtn">Delete Complete Student</button>
                     </div>
                 </div>
                 <div id="deleteMessage" class="mt-3"></div>
@@ -430,7 +604,7 @@
             <!-- Export -->
             <div class="section-card">
                 <h5 class="mb-3"><i class="fas fa-file-excel me-2"></i>Export Data</h5>
-                <button class="btn btn-success w-100 py-3" id="exportExcelBtn">
+                <button class="btn btn-success w-100 py-3 mobile-btn" id="exportExcelBtn">
                     <i class="fas fa-file-excel me-2"></i>Export All Results to Excel
                 </button>
                 <div id="exportMessage" class="mt-3"></div>
@@ -438,7 +612,7 @@
         </div>
     </div>
 
-    <footer class="footer text-center">
+    <footer class="footer desktop-only">
         <div class="container">
             <p class="mb-0">Student Result Management System © 2023 | Firebase Integrated</p>
         </div>
@@ -467,13 +641,22 @@
         const sections = ['homeSection', 'checkResultSection', 'authSection', 'adminSection'];
         let currentUser = null;
         let currentResultData = null;
+        let isMobile = window.innerWidth <= 767;
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            // Navigation
+            // Check if mobile
+            checkMobile();
+            window.addEventListener('resize', checkMobile);
+            
+            // Desktop Navigation
             document.getElementById('homeLink').addEventListener('click', () => showSection('homeSection'));
             document.getElementById('checkResultLink').addEventListener('click', () => showSection('checkResultSection'));
             document.getElementById('adminLink').addEventListener('click', () => {
+                if (isMobile) {
+                    showMessage('authMessage', 'Admin panel is not available on mobile devices.', 'warning');
+                    return;
+                }
                 if (currentUser) {
                     showSection('adminSection');
                     loadAllStudents();
@@ -483,6 +666,34 @@
             });
             document.getElementById('goToCheckResult').addEventListener('click', () => showSection('checkResultSection'));
             document.getElementById('logoutLink').addEventListener('click', logout);
+
+            // Mobile Navigation
+            document.getElementById('mobileHomeLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                setMobileNavActive('mobileHomeLink');
+                showSection('homeSection');
+            });
+            
+            document.getElementById('mobileCheckResultLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                setMobileNavActive('mobileCheckResultLink');
+                showSection('checkResultSection');
+            });
+            
+            document.getElementById('mobileAdminLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                if (isMobile) {
+                    alert('Admin panel is not available on mobile devices. Please use a desktop computer.');
+                    return;
+                }
+                setMobileNavActive('mobileAdminLink');
+                if (currentUser) {
+                    showSection('adminSection');
+                    loadAllStudents();
+                } else {
+                    showSection('authSection');
+                }
+            });
 
             // Authentication
             document.getElementById('loginBtn').addEventListener('click', login);
@@ -509,18 +720,57 @@
 
             // Show check result by default
             showSection('checkResultSection');
+            setMobileNavActive('mobileCheckResultLink');
         });
+
+        // Check if mobile
+        function checkMobile() {
+            isMobile = window.innerWidth <= 767;
+            if (isMobile && document.getElementById('adminSection').style.display === 'block') {
+                showSection('checkResultSection');
+                setMobileNavActive('mobileCheckResultLink');
+                showMessage('authMessage', 'Switched to mobile view. Admin panel is not available.', 'info');
+            }
+        }
+
+        // Mobile navigation
+        function setMobileNavActive(activeId) {
+            if (!isMobile) return;
+            
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            const activeElement = document.getElementById(activeId);
+            if (activeElement) {
+                activeElement.classList.add('active');
+            }
+        }
 
         // Navigation Functions
         function showSection(sectionId) {
             sections.forEach(id => {
                 document.getElementById(id).style.display = id === sectionId ? 'block' : 'none';
             });
+            
+            // Update desktop navigation
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             const activeLink = sectionId === 'homeSection' ? 'homeLink' : 
                               sectionId === 'checkResultSection' ? 'checkResultLink' : 
                               sectionId === 'adminSection' ? 'adminLink' : null;
             if (activeLink) document.getElementById(activeLink).classList.add('active');
+            
+            // Hide admin section on mobile
+            if (isMobile && sectionId === 'adminSection') {
+                showSection('checkResultSection');
+                alert('Admin panel is not available on mobile devices. Please use a desktop computer.');
+                return;
+            }
+            
+            // Scroll to top on mobile
+            if (isMobile) {
+                window.scrollTo(0, 0);
+            }
         }
 
         // Authentication
@@ -534,8 +784,14 @@
                 .then(() => {
                     showMessage('authMessage', 'Login successful!', 'success');
                     setTimeout(() => {
-                        showSection('adminSection');
-                        loadAllStudents();
+                        if (!isMobile) {
+                            showSection('adminSection');
+                            loadAllStudents();
+                        } else {
+                            showSection('checkResultSection');
+                            setMobileNavActive('mobileCheckResultLink');
+                            alert('Admin panel is not available on mobile. Redirecting to result check.');
+                        }
                     }, 1000);
                 })
                 .catch(error => {
@@ -547,6 +803,9 @@
             auth.signOut().then(() => {
                 currentUser = null;
                 showSection('checkResultSection');
+                if (isMobile) {
+                    setMobileNavActive('mobileCheckResultLink');
+                }
             });
         }
 
@@ -554,7 +813,6 @@
         function fetchResult() {
             const rollNumber = document.getElementById('rollNumber').value.trim();
             
-            // FIXED: Validate roll number starts with 0
             if (!rollNumber.startsWith('0')) {
                 showMessage('rollMessage', 'Roll number must start with 0', 'danger');
                 return;
@@ -581,15 +839,17 @@
                 <div class="section-card">
                     <div class="result-header">
                         <div class="row align-items-center">
-                            <div class="col-md-6">
-                                <h3 class="mb-2">${studentData.name || 'N/A'}</h3>
+                            <div class="col-md-6 col-12">
+                                <h3 class="mb-2" style="font-size: ${isMobile ? '1.5rem' : '2rem'}">${studentData.name || 'N/A'}</h3>
                                 <p class="mb-0"><i class="fas fa-id-card me-2"></i>Roll No: ${rollNumber}</p>
                             </div>
-                            <div class="col-md-6 text-end">
-                                <!-- FIXED: Corrected downloadPDF call -->
-                                <button class="btn btn-light" id="downloadPDFBtn">
+                            <div class="col-md-6 col-12 text-md-end text-center mt-2 mt-md-0">
+                                <button class="btn btn-light mobile-btn" id="downloadPDFBtn">
                                     <i class="fas fa-file-pdf me-2"></i>Download PDF
                                 </button>
+                                ${isMobile ? `<button class="btn btn-outline-light ms-2 mobile-btn" onclick="window.print()">
+                                    <i class="fas fa-print me-2"></i>Print
+                                </button>` : ''}
                             </div>
                         </div>
                     </div>`;
@@ -606,7 +866,7 @@
                     });
                 });
                 
-                // Sort test types: T1, T2, T3... then others
+                // Sort test types
                 const testTypesArray = Array.from(testTypes).sort((a, b) => {
                     if (a.startsWith('T') && b.startsWith('T')) {
                         const aNum = parseInt(a.substring(1)) || 0;
@@ -629,7 +889,7 @@
                             <tr>
                                 <th class="subject-header" rowspan="2">Subject</th>`;
                 
-                // Add test type headers with colspan 2 for Total/Obtained
+                // Add test type headers
                 testTypesArray.forEach(testType => {
                     html += `<th class="test-type-header" colspan="2">${testType}</th>`;
                 });
@@ -640,7 +900,7 @@
                     </tr>
                     <tr>`;
                 
-                // Add sub-headers for Total and Obtained for each test type
+                // Add sub-headers
                 testTypesArray.forEach(() => {
                     html += `<th class="test-type-col">Total</th>
                             <th class="obtained-col">Obtained</th>`;
@@ -659,7 +919,7 @@
                     
                     html += `<tr><td class="subject-name">${subjectName}</td>`;
                     
-                    // Add test type marks in Total/Obtained columns
+                    // Add test type marks
                     testTypesArray.forEach(testType => {
                         const testTypeKey = testType.replace(/\s+/g, '_');
                         if (subject[testTypeKey]) {
@@ -722,34 +982,36 @@
                 
                 html += `</tbody></table></div>`;
                 
-                // Add test type summary
-                html += `<div class="mt-4">
-                    <h5><i class="fas fa-chart-pie me-2"></i>Test Type Performance Summary</h5>
-                    <div class="row mt-3">`;
-                
-                testTypesArray.forEach(testType => {
-                    const total = testTypeTotals[testType];
-                    const percentage = total.total > 0 ? ((total.obtained / total.total) * 100).toFixed(2) : 0;
-                    const progressColor = percentage >= 75 ? 'success' : percentage >= 50 ? 'warning' : 'danger';
+                // Add test type summary (desktop only)
+                if (!isMobile) {
+                    html += `<div class="mt-4">
+                        <h5><i class="fas fa-chart-pie me-2"></i>Test Type Performance Summary</h5>
+                        <div class="row mt-3">`;
                     
-                    html += `
-                        <div class="col-md-3 mb-3">
-                            <div class="card border-0 shadow-sm">
-                                <div class="card-body text-center">
-                                    <h6 class="card-title mb-2">${testType}</h6>
-                                    <div class="mb-2">
-                                        <span class="h4 text-${progressColor}">${percentage}%</span>
+                    testTypesArray.forEach(testType => {
+                        const total = testTypeTotals[testType];
+                        const percentage = total.total > 0 ? ((total.obtained / total.total) * 100).toFixed(2) : 0;
+                        const progressColor = percentage >= 75 ? 'success' : percentage >= 50 ? 'warning' : 'danger';
+                        
+                        html += `
+                            <div class="col-md-3 mb-3">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title mb-2">${testType}</h6>
+                                        <div class="mb-2">
+                                            <span class="h4 text-${progressColor}">${percentage}%</span>
+                                        </div>
+                                        <p class="card-text small mb-0">
+                                            <span class="text-primary">${total.obtained}</span> / 
+                                            <span class="text-secondary">${total.total}</span>
+                                        </p>
                                     </div>
-                                    <p class="card-text small mb-0">
-                                        <span class="text-primary">${total.obtained}</span> / 
-                                        <span class="text-secondary">${total.total}</span>
-                                    </p>
                                 </div>
-                            </div>
-                        </div>`;
-                });
-                
-                html += `</div></div>`;
+                            </div>`;
+                    });
+                    
+                    html += `</div></div>`;
+                }
             } else {
                 html += `<div class="alert alert-info alert-custom">
                     <i class="fas fa-info-circle me-2"></i>
@@ -761,24 +1023,25 @@
             document.getElementById('resultDisplaySection').innerHTML = html;
             showMessage('rollMessage', '', 'success');
             
-            // FIXED: Add event listener to the download button after it's created
-            document.getElementById('downloadPDFBtn').addEventListener('click', downloadPDF);
+            // Add event listener to download button
+            setTimeout(() => {
+                const downloadBtn = document.getElementById('downloadPDFBtn');
+                if (downloadBtn) {
+                    downloadBtn.addEventListener('click', downloadPDF);
+                }
+            }, 100);
         }
 
-        // FIXED: downloadPDF function - Properly implemented
         function downloadPDF() {
             if (!currentResultData) return;
             const { studentData, rollNumber } = currentResultData;
             
-            // Create a new jsPDF instance
-            const doc = new jsPDF('l', 'mm', 'a4'); // landscape mode
+            const doc = new jsPDF('l', 'mm', 'a4');
             
-            // Add title
             doc.setFontSize(20);
             doc.setTextColor(44, 62, 80);
             doc.text(`Student Result - ${studentData.name || 'N/A'}`, 20, 20);
             
-            // Add roll number
             doc.setFontSize(12);
             doc.text(`Roll Number: ${rollNumber}`, 20, 30);
             
@@ -786,14 +1049,12 @@
                 const subjects = Object.keys(studentData.subjects);
                 const testTypes = new Set();
                 
-                // Collect all test types
                 subjects.forEach(subject => {
                     Object.keys(studentData.subjects[subject]).forEach(testType => {
                         testTypes.add(testType.replace(/_/g, ' ').toUpperCase());
                     });
                 });
                 
-                // Sort test types
                 const testTypesArray = Array.from(testTypes).sort((a, b) => {
                     if (a.startsWith('T') && b.startsWith('T')) {
                         const aNum = parseInt(a.substring(1)) || 0;
@@ -804,17 +1065,14 @@
                     else return a.localeCompare(b);
                 });
                 
-                // Create table data
                 const tableData = [];
                 const headers = ['Subject'];
                 
-                // Add headers for test types
                 testTypesArray.forEach(testType => {
                     headers.push(`${testType} Total`, `${testType} Obtained`);
                 });
                 headers.push('Total', 'Obtained', 'Percentage', 'Status');
                 
-                // Add subject rows
                 subjects.forEach(subjectName => {
                     const subject = studentData.subjects[subjectName];
                     const rowData = [subjectName];
@@ -842,7 +1100,6 @@
                     tableData.push(rowData);
                 });
                 
-                // Calculate overall totals
                 let overallTotal = 0, overallObtained = 0;
                 subjects.forEach(subjectName => {
                     const subject = studentData.subjects[subjectName];
@@ -861,7 +1118,6 @@
                 const overallPercentage = overallTotal > 0 ? ((overallObtained / overallTotal) * 100).toFixed(2) : 0;
                 const overallStatus = overallTotal > 0 && overallPercentage >= 50 ? 'PASS' : 'FAIL';
                 
-                // Add total row
                 const totalRow = ['GRAND TOTAL'];
                 testTypesArray.forEach(testType => {
                     const testTypeKey = testType.replace(/\s+/g, '_');
@@ -883,7 +1139,6 @@
                 totalRow.push(overallTotal, overallObtained, overallPercentage + '%', overallStatus);
                 tableData.push(totalRow);
                 
-                // Generate table using autoTable
                 doc.autoTable({
                     startY: 40,
                     head: [headers],
@@ -894,7 +1149,7 @@
                         textColor: [255, 255, 255],
                         fontSize: 10
                     },
-                    bodyStyles: { fontSize: 9 },
+                    bodyStyles: { fontSize: 8 },
                     alternateRowStyles: { fillColor: [245, 245, 245] },
                     margin: { left: 10, right: 10 },
                     styles: { overflow: 'linebreak', cellWidth: 'wrap' },
@@ -903,7 +1158,6 @@
                     }
                 });
                 
-                // Add footer with date
                 const pageCount = doc.internal.getNumberOfPages();
                 for(let i = 1; i <= pageCount; i++) {
                     doc.setPage(i);
@@ -915,16 +1169,19 @@
                 doc.text("No results available for this student.", 20, 50);
             }
             
-            // Save the PDF
             doc.save(`Result_${rollNumber}.pdf`);
         }
 
         // Admin Functions
         function addStudent() {
+            if (isMobile) {
+                alert('This feature is not available on mobile devices.');
+                return;
+            }
+            
             const rollNo = document.getElementById('addRollNumber').value.trim();
             const name = document.getElementById('addStudentName').value.trim();
             
-            // FIXED: Only allow roll numbers starting with 0
             if (!rollNo.startsWith('0') || !name) {
                 showMessage('addStudentMessage', 'Invalid data. Roll number must start with 0.', 'danger');
                 return;
@@ -944,13 +1201,17 @@
         }
 
         function addMarks() {
+            if (isMobile) {
+                alert('This feature is not available on mobile devices.');
+                return;
+            }
+            
             const rollNo = document.getElementById('updateRollNumber').value.trim();
             const subject = document.getElementById('subject').value.trim();
             const testType = document.getElementById('testType').value.toUpperCase().replace(/\s+/g, '_');
             const totalMarks = document.getElementById('totalMarks').value;
             const obtainedMarks = document.getElementById('obtainedMarks').value;
             
-            // FIXED: Validate roll number starts with 0
             if (!rollNo.startsWith('0') || !subject || !testType || !totalMarks) {
                 showMessage('updateMarksMessage', 'Please fill all fields correctly. Roll number must start with 0.', 'danger');
                 return;
@@ -987,6 +1248,8 @@
         }
 
         function autoFillName() {
+            if (isMobile) return;
+            
             const rollNo = document.getElementById('updateRollNumber').value.trim();
             if (rollNo.startsWith('0')) {
                 database.ref('students/' + rollNo).once('value')
@@ -1001,6 +1264,8 @@
         }
 
         function loadAllStudents() {
+            if (isMobile) return;
+            
             database.ref('students').once('value')
                 .then(snapshot => {
                     const allStudents = snapshot.val();
@@ -1036,11 +1301,11 @@
                             html += `
                                 <div class="student-card ${!hasResults ? 'student-no-results' : ''}">
                                     <div class="row align-items-center">
-                                        <div class="col-md-5">
+                                        <div class="col-md-5 col-12">
                                             <h6 class="mb-1 fw-bold">${student.name || 'N/A'}</h6>
                                             <small class="text-muted">Roll No: ${rollNo}</small>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-4 col-12 mt-2 mt-md-0">
                                             ${hasResults ? `
                                                 <span class="${statusClass}">${percentage}%</span>
                                                 <small class="text-muted ms-2">${obtainedMarks}/${totalMarks}</small>
@@ -1048,11 +1313,11 @@
                                                 <span class="no-results-badge">No Results Yet</span>
                                             `}
                                         </div>
-                                        <div class="col-md-3 text-end">
-                                            <button class="btn btn-sm btn-primary" onclick="viewStudent('${rollNo}')">
+                                        <div class="col-md-3 col-12 text-md-end text-start mt-2 mt-md-0">
+                                            <button class="btn btn-sm btn-primary mobile-btn" onclick="viewStudent('${rollNo}')">
                                                 <i class="fas fa-eye"></i> View
                                             </button>
-                                            <button class="btn btn-sm btn-outline-primary ms-1" onclick="editStudent('${rollNo}')">
+                                            <button class="btn btn-sm btn-outline-primary ms-1 mobile-btn" onclick="editStudent('${rollNo}')">
                                                 <i class="fas fa-edit"></i>
                                             </button>
                                         </div>
@@ -1075,15 +1340,27 @@
         function viewStudent(rollNo) {
             document.getElementById('rollNumber').value = rollNo;
             showSection('checkResultSection');
+            if (isMobile) {
+                setMobileNavActive('mobileCheckResultLink');
+            }
             setTimeout(fetchResult, 100);
         }
 
         function editStudent(rollNo) {
+            if (isMobile) {
+                alert('Editing is not available on mobile devices.');
+                return;
+            }
             document.getElementById('updateRollNumber').value = rollNo;
             autoFillName();
         }
 
         function searchStudents() {
+            if (isMobile) {
+                alert('This feature is not available on mobile devices.');
+                return;
+            }
+            
             const searchTerm = document.getElementById('searchStudent').value.toLowerCase();
             database.ref('students').once('value')
                 .then(snapshot => {
@@ -1116,7 +1393,7 @@
                                 html += `
                                     <div class="student-card ${!hasResults ? 'student-no-results' : ''}">
                                         <div class="row align-items-center">
-                                            <div class="col-md-8">
+                                            <div class="col-md-8 col-12">
                                                 <h6 class="mb-1 fw-bold">${student.name || 'N/A'}</h6>
                                                 <small class="text-muted">Roll No: ${rollNo}</small>
                                                 ${hasResults ? 
@@ -1124,8 +1401,8 @@
                                                     `<small class="d-block mt-1 text-warning">No results available</small>`
                                                 }
                                             </div>
-                                            <div class="col-md-4 text-end">
-                                                <button class="btn btn-sm btn-primary" onclick="viewStudent('${rollNo}')">
+                                            <div class="col-md-4 col-12 text-md-end text-start mt-2">
+                                                <button class="btn btn-sm btn-primary mobile-btn" onclick="viewStudent('${rollNo}')">
                                                     View Result
                                                 </button>
                                             </div>
@@ -1144,6 +1421,11 @@
         }
 
         function deleteResults() {
+            if (isMobile) {
+                alert('This feature is not available on mobile devices.');
+                return;
+            }
+            
             const rollNo = document.getElementById('deleteRollNumber').value.trim();
             
             if (!rollNo.startsWith('0')) {
@@ -1167,7 +1449,6 @@
                     const studentData = snapshot.val();
                     const studentName = studentData.name || '';
                     
-                    // Update only the subjects to empty object, keep the name
                     return database.ref('students/' + rollNo).update({
                         subjects: {}
                     });
@@ -1185,6 +1466,11 @@
         }
 
         function deleteStudent() {
+            if (isMobile) {
+                alert('This feature is not available on mobile devices.');
+                return;
+            }
+            
             const rollNo = document.getElementById('deleteRollNumber').value.trim();
             
             if (!rollNo.startsWith('0')) {
@@ -1211,6 +1497,11 @@
         }
 
         function exportToExcel() {
+            if (isMobile) {
+                alert('This feature is not available on mobile devices.');
+                return;
+            }
+            
             showMessage('exportMessage', 'Preparing Excel file...', 'info');
             
             database.ref('students').once('value')
