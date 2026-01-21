@@ -3,939 +3,448 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Result Management System</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Student Result Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
-    <!-- Excel export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
-            --primary-color: #2A2D7C;
-            --secondary-color: #5D6AFB;
-            --accent-color: #FF6B8B;
-            --success-color: #2ECC71;
-            --warning-color: #F1C40F;
-            --info-color: #3498DB;
-            --light-color: #F8F9FA;
-            --dark-color: #2C3E50;
-            --gradient-primary: linear-gradient(135deg, #2A2D7C 0%, #5D6AFB 100%);
-            --gradient-secondary: linear-gradient(135deg, #FF6B8B 0%, #FF8E53 100%);
-            --gradient-success: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
-            --gradient-warning: linear-gradient(135deg, #F1C40F 0%, #F39C12 100%);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
         }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            color: var(--dark-color);
-            line-height: 1.6;
         }
         
-        /* Navigation Bar */
         .navbar {
-            background: var(--gradient-primary);
-            padding: 15px 0;
-            box-shadow: 0 4px 12px rgba(42, 45, 124, 0.15);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
+            background: var(--primary);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
         }
         
-        .navbar-brand {
-            font-weight: 800;
-            font-size: 1.8rem;
-            color: white !important;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .nav-link.active {
+            background: rgba(255,255,255,0.15);
+            border-radius: 6px;
         }
         
-        .navbar-brand i {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 10px;
-            border-radius: 50%;
-        }
-        
-        .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            font-weight: 500;
-            padding: 10px 20px !important;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            margin: 0 5px;
-        }
-        
-        .nav-link:hover, .nav-link.active {
-            background: rgba(255, 255, 255, 0.15);
-            color: white !important;
-            transform: translateY(-2px);
-        }
-        
-        /* Main Content Container */
-        .main-container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 20px;
-        }
-        
-        /* Check Result Section (First Page) */
-        .check-result-section {
+        .section-card {
             background: white;
-            border-radius: 20px;
-            padding: 50px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .check-result-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 8px;
-            background: var(--gradient-primary);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+            border-top: 4px solid var(--secondary);
         }
         
         .section-title {
-            color: var(--primary-color);
-            font-weight: 800;
-            margin-bottom: 30px;
-            text-align: center;
-            position: relative;
-            padding-bottom: 15px;
-        }
-        
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: var(--gradient-secondary);
-            border-radius: 2px;
-        }
-        
-        .form-card {
-            background: var(--light-color);
-            border-radius: 15px;
-            padding: 40px;
-            border: none;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-        }
-        
-        .form-label {
-            font-weight: 600;
-            color: var(--dark-color);
-            margin-bottom: 8px;
-        }
-        
-        .form-control {
-            padding: 15px 20px;
-            border-radius: 12px;
-            border: 2px solid #e1e5ee;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        .form-control:focus {
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 3px rgba(93, 106, 251, 0.2);
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 12px;
+            margin-bottom: 25px;
+            font-weight: 700;
+            font-size: 1.8rem;
         }
         
         .btn-primary-custom {
-            background: var(--gradient-primary);
-            color: white;
+            background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);
             border: none;
-            padding: 15px 30px;
-            border-radius: 12px;
+            padding: 12px 30px;
+            border-radius: 8px;
+            color: white;
             font-weight: 600;
-            font-size: 16px;
             transition: all 0.3s;
-            width: 100%;
-            margin-top: 10px;
         }
         
         .btn-primary-custom:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(93, 106, 251, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
         }
         
-        .btn-secondary-custom {
-            background: var(--gradient-secondary);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-        
-        .btn-secondary-custom:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(255, 107, 139, 0.3);
-        }
-        
-        /* Result Display */
-        .result-container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            margin-top: 30px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            border-top: 8px solid var(--secondary-color);
-        }
-        
-        .student-info-card {
+        .result-header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
         }
         
         .result-table {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            margin: 25px 0;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            border-collapse: collapse;
+            margin-bottom: 20px;
         }
         
         .result-table th {
-            background: var(--primary-color);
+            background: var(--primary);
             color: white;
-            padding: 18px 15px;
-            font-weight: 600;
             text-align: center;
-            border: none;
+            vertical-align: middle;
+            font-weight: 600;
+            padding: 12px 8px;
+            border: 1px solid #dee2e6;
         }
         
         .result-table td {
-            padding: 15px;
             text-align: center;
-            border: none;
-            border-bottom: 1px solid #f1f1f1;
+            vertical-align: middle;
+            padding: 10px 8px;
+            border: 1px solid #dee2e6;
         }
         
-        .result-table tr:nth-child(even) {
-            background-color: #f8f9ff;
-        }
-        
-        .result-table tr:hover {
-            background-color: #f0f2ff;
-        }
-        
-        .subject-pass {
-            background-color: #d4f7e2;
-            color: #155724;
-            padding: 6px 12px;
-            border-radius: 20px;
+        .subject-header {
+            background: #e9ecef;
             font-weight: 600;
-            font-size: 13px;
         }
         
-        .subject-fail {
-            background-color: #ffe0e0;
-            color: #721c24;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 13px;
+        .test-type-header {
+            background: #495057;
         }
         
-        .status-box {
-            background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 30px;
-            border-left: 5px solid var(--warning-color);
+        .test-type-col {
+            min-width: 100px;
+            background: #f8f9fa;
         }
         
-        /* Admin Panel */
-        .admin-section {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            margin-top: 30px;
-        }
-        
-        .admin-panel-card {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 1px solid #eaeaea;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
-            transition: all 0.3s;
-        }
-        
-        .admin-panel-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-        }
-        
-        .admin-panel-card h5 {
-            color: var(--primary-color);
-            font-weight: 700;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-        
-        .admin-panel-card h5 i {
-            margin-right: 10px;
-            color: var(--secondary-color);
-        }
-        
-        /* Auth Section */
-        .auth-container {
-            max-width: 500px;
-            margin: 50px auto;
-            background: white;
-            border-radius: 20px;
-            padding: 50px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            border-top: 8px solid var(--primary-color);
-        }
-        
-        /* Messages */
-        .alert-message {
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin: 15px 0;
-            font-weight: 500;
-        }
-        
-        .alert-success-custom {
-            background: #d4f7e2;
-            color: #155724;
-            border-left: 5px solid var(--success-color);
-        }
-        
-        .alert-danger-custom {
-            background: #ffe0e0;
-            color: #721c24;
-            border-left: 5px solid var(--accent-color);
-        }
-        
-        .alert-info-custom {
+        .total-col {
             background: #e3f2fd;
-            color: #0c5460;
-            border-left: 5px solid var(--info-color);
+            font-weight: 600;
         }
         
-        /* Student Cards */
+        .obtained-col {
+            background: #f0f9ff;
+        }
+        
+        .subject-name {
+            font-weight: 600;
+            color: var(--primary);
+            text-align: left;
+            background: #f8f9fa;
+        }
+        
+        .marks-cell {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        
+        .absent-mark {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        
+        .percentage-cell {
+            font-weight: 700;
+            color: var(--primary);
+            background: #e8f5e9;
+        }
+        
+        .status-pass {
+            background: var(--success);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+        
+        .status-fail {
+            background: var(--danger);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+        
+        .total-row {
+            background: #f8f9fa !important;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-top: 3px solid var(--primary);
+        }
+        
+        .test-total-header {
+            background: #6c757d;
+            color: white;
+        }
+        
         .student-card {
             background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border: 1px solid #eaeaea;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--secondary);
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
         }
         
         .student-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
         }
         
-        .student-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 5px;
-            height: 100%;
-            background: var(--gradient-primary);
+        .student-no-results {
+            border-left: 4px solid var(--warning);
         }
         
-        /* Home Page */
-        .hero-section {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 80px 50px;
-            border-radius: 20px;
-            text-align: center;
-            margin-bottom: 50px;
-            position: relative;
-            overflow: hidden;
+        .alert-custom {
+            border-radius: 8px;
+            border-left: 4px solid;
+            padding: 15px;
         }
         
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 30px 30px;
-            animation: float 20s linear infinite;
+        .form-control:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 0.25rem rgba(52, 152, 219, 0.25);
         }
         
-        @keyframes float {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            100% { transform: translate(-30px, -30px) rotate(360deg); }
-        }
-        
-        .hero-title {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.3rem;
-            opacity: 0.9;
-            margin-bottom: 30px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .features-section {
-            padding: 50px 0;
-        }
-        
-        .feature-card {
-            background: white;
-            padding: 40px 30px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s;
-            height: 100%;
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-        }
-        
-        .feature-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--gradient-primary);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 25px;
-            color: white;
-            font-size: 2rem;
-        }
-        
-        /* Footer */
-        .footer {
-            background: var(--dark-color);
-            color: white;
-            padding: 30px 0;
-            text-align: center;
-            margin-top: 60px;
-        }
-        
-        /* Responsive */
         @media (max-width: 768px) {
-            .main-container {
-                padding: 15px;
-            }
-            
-            .check-result-section,
-            .admin-section,
-            .auth-container {
-                padding: 30px 20px;
-            }
-            
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            
-            .hero-section {
-                padding: 50px 20px;
+            .section-card {
+                padding: 20px 15px;
             }
             
             .result-table {
-                font-size: 13px;
+                font-size: 0.85rem;
             }
             
             .result-table th,
             .result-table td {
-                padding: 10px 5px;
+                padding: 8px 4px;
             }
         }
         
-        /* Animation */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .fade-in {
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--secondary-color);
-            border-radius: 5px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary-color);
-        }
-        
-        /* Test Type Input */
-        .test-type-input {
-            text-transform: uppercase;
-        }
-        
-        /* Delete Options */
-        .delete-options {
-            background: #fff8f8;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 15px;
-            border: 1px solid #ffcccc;
-        }
-        
-        .delete-option {
-            margin-bottom: 10px;
-        }
-        
-        .delete-option:last-child {
-            margin-bottom: 0;
-        }
-        
-        /* PDF Button */
-        .btn-pdf {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        .footer {
+            background: var(--primary);
             color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 10px;
-            font-weight: 600;
-            transition: all 0.3s;
+            padding: 20px 0;
+            margin-top: 40px;
         }
         
-        .btn-pdf:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
-        }
-        
-        /* Custom Test Type Input */
-        .test-type-container {
-            position: relative;
-        }
-        
-        .test-type-suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #ddd;
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 20px;
             border-radius: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 1px solid #dee2e6;
         }
         
-        .test-type-suggestion {
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        
-        .test-type-suggestion:hover {
-            background: #f0f2ff;
-        }
-        
-        .test-type-suggestion.active {
-            background: var(--secondary-color);
+        .no-results-badge {
+            background: var(--warning);
             color: white;
-        }
-        
-        /* Form Validation */
-        .is-invalid {
-            border-color: #dc3545 !important;
-        }
-        
-        .invalid-feedback {
-            display: none;
-            width: 100%;
-            margin-top: 0.25rem;
-            font-size: 0.875em;
-            color: #dc3545;
-        }
-        
-        .is-invalid ~ .invalid-feedback {
-            display: block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#" id="homeBrand">
-                <i class="fas fa-graduation-cap"></i>
-                <span>Result System</span>
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fas fa-graduation-cap me-2"></i>
+                Result Management System
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="homeLink"><i class="fas fa-home me-1"></i>Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="#" id="checkResultLink"><i class="fas fa-search me-1"></i>Check Result</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="adminLink"><i class="fas fa-user-shield me-1"></i>Admin</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#" id="logoutLink" style="display:none;"><i class="fas fa-sign-out-alt me-1"></i>Logout</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link active" href="#" id="homeLink">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" id="checkResultLink">Check Result</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" id="adminLink">Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" id="logoutLink" style="display:none;">Logout</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Main Content Area -->
-    <div class="main-container">
-        <!-- Home Page Content -->
+    <div class="container mt-4 mb-4" id="contentArea">
+        <!-- Home Section -->
         <div id="homeSection">
-            <div class="hero-section fade-in">
-                <h1 class="hero-title">Student Result Management System</h1>
-                <p class="hero-subtitle">Instant access to academic results with detailed performance analysis</p>
-                <button class="btn btn-secondary-custom btn-lg mt-3" id="goToCheckResult">
-                    <i class="fas fa-search me-2"></i>Check Your Result Now
+            <div class="section-card text-center">
+                <h1 class="display-5 mb-3">Student Result Management System</h1>
+                <p class="lead mb-4">Access academic results with detailed test-wise analysis</p>
+                <button class="btn btn-primary-custom btn-lg" id="goToCheckResult">
+                    Check Your Result Now
                 </button>
             </div>
-            
-            <div class="features-section">
+            <div class="row mt-4">
+                <div class="col-md-4 mb-3">
+                    <div class="section-card text-center h-100">
+                        <div class="mb-3 text-primary">
+                            <i class="fas fa-bolt fa-3x"></i>
+                        </div>
+                        <h5>Instant Results</h5>
+                        <p>Quick access to results by roll number</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="section-card text-center h-100">
+                        <div class="mb-3 text-primary">
+                            <i class="fas fa-chart-bar fa-3x"></i>
+                        </div>
+                        <h5>Test-wise Analysis</h5>
+                        <p>T1, T2, T3 with separate Total/Obtained columns</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="section-card text-center h-100">
+                        <div class="mb-3 text-primary">
+                            <i class="fas fa-shield-alt fa-3x"></i>
+                        </div>
+                        <h5>Secure System</h5>
+                        <p>Protected by Firebase Authentication</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Check Result Section -->
+        <div id="checkResultSection" style="display:none;">
+            <div class="section-card">
+                <h2 class="section-title">Check Student Result</h2>
                 <div class="row">
-                    <div class="col-md-4 mb-4">
-                        <div class="feature-card fade-in" style="animation-delay: 0.1s;">
-                            <div class="feature-icon">
-                                <i class="fas fa-bolt"></i>
-                            </div>
-                            <h4>Instant Results</h4>
-                            <p>Get your results immediately by entering your roll number. No waiting, no delays.</p>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Enter Roll Number</label>
+                            <input type="text" class="form-control form-control-lg" id="rollNumber" placeholder="e.g., 0283, 0123">
+                            <div class="form-text">Only roll numbers starting with 0 are allowed</div>
                         </div>
-                    </div>
-                    <div class="col-md-4 mb-4">
-                        <div class="feature-card fade-in" style="animation-delay: 0.2s;">
-                            <div class="feature-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <h4>Detailed Analysis</h4>
-                            <p>View subject-wise performance with percentage and status indicators.</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-4">
-                        <div class="feature-card fade-in" style="animation-delay: 0.3s;">
-                            <div class="feature-icon">
-                                <i class="fas fa-shield-alt"></i>
-                            </div>
-                            <h4>Secure System</h4>
-                            <p>Protected by Firebase Authentication. Only authorized access to admin features.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Check Result Section (First Page) -->
-        <div id="checkResultSection" class="fade-in">
-            <div class="check-result-section">
-                <h2 class="section-title">Check Your Result</h2>
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="form-card">
-                            <div class="mb-4">
-                                <label for="rollNumber" class="form-label">Enter Your Roll Number</label>
-                                <div class="input-group">
-                                    <span class="input-group-text bg-gradient-primary text-white border-0">
-                                        <i class="fas fa-id-card"></i>
-                                    </span>
-                                    <input type="text" class="form-control" id="rollNumber" placeholder="e.g., 0283, 0123, 0567">
-                                </div>
-                                <div class="invalid-feedback" id="rollNumberError">
-                                    Please enter a valid roll number starting with 0.
-                                </div>
-                                <div class="form-text mt-2">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Roll numbers starting with 0 are valid. Others will be rejected.
-                                </div>
-                            </div>
-                            <div class="d-grid">
-                                <button class="btn btn-primary-custom" id="fetchResultBtn">
-                                    <i class="fas fa-search me-2"></i>Fetch Result
-                                </button>
-                            </div>
-                            <div id="rollMessage" class="mt-4"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div id="resultDisplaySection" style="display:none;">
-                <!-- Result will be displayed here -->
-            </div>
-        </div>
-
-        <!-- Login/Admin Section -->
-        <div id="authSection" style="display:none;">
-            <div class="auth-container fade-in">
-                <h2 class="section-title">Admin Login</h2>
-                <div class="mb-4">
-                    <label for="email" class="form-label">Email Address</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-gradient-primary text-white border-0">
-                            <i class="fas fa-envelope"></i>
-                        </span>
-                        <input type="email" class="form-control" id="email" placeholder="Enter your email">
-                    </div>
-                    <div class="invalid-feedback" id="emailError">
-                        Please enter a valid email address.
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label for="password" class="form-label">Password</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-gradient-primary text-white border-0">
-                            <i class="fas fa-lock"></i>
-                        </span>
-                        <input type="password" class="form-control" id="password" placeholder="Enter your password">
-                    </div>
-                    <div class="invalid-feedback" id="passwordError">
-                        Please enter your password.
-                    </div>
-                </div>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary-custom" id="loginBtn">
-                        <i class="fas fa-sign-in-alt me-2"></i>Login
-                    </button>
-                </div>
-                <div class="mt-4 text-center">
-                    <p class="text-muted">
-                        <i class="fas fa-shield-alt me-1"></i>
-                        Secure login with Firebase Authentication
-                    </p>
-                </div>
-                <div id="authMessage" class="mt-4"></div>
-            </div>
-        </div>
-
-        <!-- Admin Panel Section (After Login) -->
-        <div id="adminSection" style="display:none;">
-            <div class="admin-section fade-in">
-                <h2 class="section-title">Admin Panel</h2>
-                
-                <!-- Add Student Form -->
-                <div class="admin-panel-card">
-                    <h5><i class="fas fa-user-plus"></i>Add New Student</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-4 mb-3">
-                            <label for="addRollNumber" class="form-label">Roll Number *</label>
-                            <input type="text" class="form-control" id="addRollNumber" placeholder="Must start with 0 (e.g., 0283)">
-                            <div class="invalid-feedback" id="addRollNumberError">
-                                Roll number must start with 0.
-                            </div>
-                        </div>
-                        <div class="col-md-8 mb-3">
-                            <label for="addStudentName" class="form-label">Student Name *</label>
-                            <input type="text" class="form-control" id="addStudentName" placeholder="Enter full name">
-                            <div class="invalid-feedback" id="addStudentNameError">
-                                Please enter student name.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-grid">
-                        <button class="btn btn-primary-custom" id="addStudentBtn">
-                            <i class="fas fa-save me-2"></i>Add Student
+                        <button class="btn btn-primary-custom w-100 py-3" id="fetchResultBtn">
+                            <i class="fas fa-search me-2"></i>Fetch Result
                         </button>
-                    </div>
-                    <div id="addStudentMessage" class="mt-4"></div>
-                </div>
-                
-                <!-- Add Marks Form -->
-                <div class="admin-panel-card">
-                    <h5><i class="fas fa-edit"></i>Add/Update Student Marks</h5>
-                    <div class="row mb-3">
-                        <div class="col-md-4 mb-3">
-                            <label for="updateRollNumber" class="form-label">Roll Number *</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="updateRollNumber" placeholder="Must start with 0 (e.g., 0283)">
-                                <button class="btn btn-outline-primary" type="button" id="autoFillBtn">
-                                    <i class="fas fa-user-check"></i>
-                                </button>
-                            </div>
-                            <div class="invalid-feedback" id="updateRollNumberError">
-                                Roll number must start with 0.
-                            </div>
-                        </div>
-                        <div class="col-md-8 mb-3">
-                            <label for="studentName" class="form-label">Student Name</label>
-                            <input type="text" class="form-control" id="studentName" placeholder="Auto-filled when roll number is entered" readonly>
-                        </div>
-                    </div>
-                    
-                    <div class="row mb-3">
-                        <div class="col-md-3 mb-3">
-                            <label for="subject" class="form-label">Subject *</label>
-                            <input type="text" class="form-control" id="subject" placeholder="e.g., English, Math">
-                            <div class="invalid-feedback" id="subjectError">
-                                Please enter subject name.
-                            </div>
-                        </div>
-                        <div class="col-md-2 mb-3 test-type-container">
-                            <label for="testType" class="form-label">Test Type *</label>
-                            <input type="text" class="form-control test-type-input" id="testType" placeholder="e.g., T1, T2, Final" value="Final">
-                            <div class="invalid-feedback" id="testTypeError">
-                                Please enter test type (e.g., T1, T2, Final).
-                            </div>
-                            <div class="test-type-suggestions" id="testTypeSuggestions">
-                                <!-- Suggestions will be populated here -->
-                            </div>
-                        </div>
-                        <div class="col-md-2 mb-3">
-                            <label for="totalMarks" class="form-label">Total Marks *</label>
-                            <input type="number" class="form-control" id="totalMarks" placeholder="e.g., 100" value="100">
-                            <div class="invalid-feedback" id="totalMarksError">
-                                Please enter valid total marks (greater than 0).
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="obtainedMarks" class="form-label">Obtained Marks *</label>
-                            <input type="text" class="form-control" id="obtainedMarks" placeholder="Marks or 'A' for absent">
-                            <div class="invalid-feedback" id="obtainedMarksError">
-                                Please enter valid obtained marks or 'A' for absent.
-                            </div>
-                        </div>
-                        <div class="col-md-2 mb-3 d-flex align-items-end">
-                            <button class="btn btn-primary-custom w-100" id="addMarksBtn">
-                                <i class="fas fa-save me-1"></i>Save
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div id="studentInfoDisplay" class="mt-3" style="display:none;">
-                        <!-- Student info will be displayed here -->
-                    </div>
-                    
-                    <div id="updateMarksMessage" class="mt-4"></div>
-                </div>
-                
-                <!-- All Students Results -->
-                <div class="admin-panel-card">
-                    <h5><i class="fas fa-list"></i>All Students Results</h5>
-                    <div class="mb-4">
-                        <div class="input-group">
-                            <span class="input-group-text bg-gradient-primary text-white border-0">
-                                <i class="fas fa-search"></i>
-                            </span>
-                            <input type="text" class="form-control" id="searchStudent" placeholder="Search by roll number or name...">
-                            <button class="btn btn-secondary-custom" id="searchBtn">Search</button>
-                        </div>
-                    </div>
-                    <div id="allResultsDisplay">
-                        <!-- All results will be displayed here -->
+                        <div id="rollMessage" class="mt-3"></div>
                     </div>
                 </div>
-                
-                <!-- Delete Student Result -->
-                <div class="admin-panel-card">
-                    <h5><i class="fas fa-trash"></i>Delete Options</h5>
-                    <div class="delete-options">
-                        <div class="delete-option">
-                            <label for="deleteRollNumber" class="form-label">Roll Number</label>
-                            <input type="text" class="form-control" id="deleteRollNumber" placeholder="Enter roll number">
-                            <div class="invalid-feedback" id="deleteRollNumberError">
-                                Roll number must start with 0.
-                            </div>
-                        </div>
-                        
-                        <div class="row mt-3">
-                            <div class="col-md-6 mb-3">
-                                <button class="btn btn-warning w-100" id="deleteResultBtn">
-                                    <i class="fas fa-trash-alt me-2"></i>Delete Only Results
-                                </button>
-                                <small class="text-muted d-block mt-1">Keeps student record, removes only marks</small>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <button class="btn btn-danger w-100" id="deleteStudentBtn">
-                                    <i class="fas fa-user-times me-2"></i>Delete Complete Student
-                                </button>
-                                <small class="text-muted d-block mt-1">Removes student and all their data</small>
-                            </div>
-                        </div>
+            </div>
+            <div id="resultDisplaySection"></div>
+        </div>
+
+        <!-- Admin Login -->
+        <div id="authSection" style="display:none;">
+            <div class="section-card" style="max-width: 500px; margin: 0 auto;">
+                <h2 class="section-title">Admin Login</h2>
+                <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-control" id="email" placeholder="admin@example.com">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Enter password">
+                </div>
+                <button class="btn btn-primary-custom w-100 py-2" id="loginBtn">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </button>
+                <div id="authMessage" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminSection" style="display:none;">
+            <h2 class="section-title mb-4"><i class="fas fa-user-shield me-2"></i>Admin Panel</h2>
+            
+            <!-- Add Student -->
+            <div class="section-card mb-4">
+                <h5 class="mb-3"><i class="fas fa-user-plus me-2"></i>Add New Student</h5>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="addRollNumber" placeholder="Roll Number (0283)">
                     </div>
-                    <div id="deleteMessage" class="mt-4"></div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="addStudentName" placeholder="Full Name">
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary-custom w-100" id="addStudentBtn">Add Student</button>
+                    </div>
                 </div>
-                
-                <!-- Export to Excel -->
-                <div class="admin-panel-card">
-                    <h5><i class="fas fa-file-excel"></i>Export to Excel</h5>
-                    <p class="text-muted mb-4">Export all student results to Excel with each student on a separate sheet.</p>
-                    <button class="btn btn-success w-100 py-3" id="exportExcelBtn">
-                        <i class="fas fa-file-excel me-2"></i>Export to Excel
-                    </button>
-                    <div id="exportMessage" class="mt-4"></div>
+                <div id="addStudentMessage" class="mt-3"></div>
+            </div>
+
+            <!-- Add/Update Marks -->
+            <div class="section-card mb-4">
+                <h5 class="mb-3"><i class="fas fa-edit me-2"></i>Add/Update Marks</h5>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="updateRollNumber" placeholder="Roll Number">
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="studentName" placeholder="Student Name" readonly>
+                    </div>
                 </div>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="subject" placeholder="Subject">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" class="form-control" id="testType" placeholder="T1/T2/Final" value="Final">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" id="totalMarks" value="100">
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" class="form-control" id="obtainedMarks" placeholder="Marks or 'A'">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary-custom w-100" id="addMarksBtn">Save</button>
+                    </div>
+                </div>
+                <div id="updateMarksMessage" class="mt-3"></div>
+            </div>
+
+            <!-- All Students -->
+            <div class="section-card mb-4">
+                <h5 class="mb-3"><i class="fas fa-list me-2"></i>All Students</h5>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" id="searchStudent" placeholder="Search by roll number or name">
+                    <button class="btn btn-primary-custom" id="searchBtn">Search</button>
+                </div>
+                <div id="allResultsDisplay"></div>
+            </div>
+
+            <!-- Delete Options -->
+            <div class="section-card mb-4">
+                <h5 class="mb-3"><i class="fas fa-trash me-2"></i>Delete Options</h5>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="deleteRollNumber" placeholder="Enter Roll Number">
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-warning w-100" id="deleteResultBtn">Delete Results Only</button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-danger w-100" id="deleteStudentBtn">Delete Complete Student</button>
+                    </div>
+                </div>
+                <div id="deleteMessage" class="mt-3"></div>
+            </div>
+
+            <!-- Export -->
+            <div class="section-card">
+                <h5 class="mb-3"><i class="fas fa-file-excel me-2"></i>Export Data</h5>
+                <button class="btn btn-success w-100 py-3" id="exportExcelBtn">
+                    <i class="fas fa-file-excel me-2"></i>Export All Results to Excel
+                </button>
+                <div id="exportMessage" class="mt-3"></div>
             </div>
         </div>
     </div>
 
-    <div class="footer">
+    <footer class="footer text-center">
         <div class="container">
-            <p class="mb-2">Student Result Management System &copy; 2023 | Firebase Integrated</p>
-            <p class="mb-0">
-                <i class="fas fa-code me-1"></i> Developed with 
-                <i class="fas fa-heart text-danger mx-1"></i> 
-                for Educational Institutions
-            </p>
+            <p class="mb-0">Student Result Management System © 2023 | Firebase Integrated</p>
         </div>
-    </div>
+    </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Firebase Configuration
         const firebaseConfig = {
@@ -949,609 +458,508 @@
             measurementId: "G-839CVJXZ0E"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
-
-        // Initialize jsPDF
         const { jsPDF } = window.jspdf;
 
         // DOM Elements
-        const homeSection = document.getElementById('homeSection');
-        const checkResultSection = document.getElementById('checkResultSection');
-        const authSection = document.getElementById('authSection');
-        const adminSection = document.getElementById('adminSection');
-        const homeLink = document.getElementById('homeLink');
-        const checkResultLink = document.getElementById('checkResultLink');
-        const adminLink = document.getElementById('adminLink');
-        const logoutLink = document.getElementById('logoutLink');
-        const homeBrand = document.getElementById('homeBrand');
-        const loginBtn = document.getElementById('loginBtn');
-        const fetchResultBtn = document.getElementById('fetchResultBtn');
-        const rollNumberInput = document.getElementById('rollNumber');
-        const rollMessage = document.getElementById('rollMessage');
-        const resultDisplaySection = document.getElementById('resultDisplaySection');
-        const addStudentBtn = document.getElementById('addStudentBtn');
-        const addMarksBtn = document.getElementById('addMarksBtn');
-        const exportExcelBtn = document.getElementById('exportExcelBtn');
-        const addRollNumber = document.getElementById('addRollNumber');
-        const addStudentName = document.getElementById('addStudentName');
-        const updateRollNumber = document.getElementById('updateRollNumber');
-        const studentName = document.getElementById('studentName');
-        const autoFillBtn = document.getElementById('autoFillBtn');
-        const deleteResultBtn = document.getElementById('deleteResultBtn');
-        const deleteStudentBtn = document.getElementById('deleteStudentBtn');
-        const deleteRollNumber = document.getElementById('deleteRollNumber');
-        const searchStudent = document.getElementById('searchStudent');
-        const searchBtn = document.getElementById('searchBtn');
-        const allResultsDisplay = document.getElementById('allResultsDisplay');
-        const goToCheckResult = document.getElementById('goToCheckResult');
-        const testTypeInput = document.getElementById('testType');
-        const testTypeSuggestions = document.getElementById('testTypeSuggestions');
-
-        // Current user state
+        const sections = ['homeSection', 'checkResultSection', 'authSection', 'adminSection'];
         let currentUser = null;
-        let currentResultData = null; // Store current result data for PDF export
+        let currentResultData = null;
 
-        // Common test types for suggestions
-        const commonTestTypes = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 
-                                'T11', 'T12', 'T13', 'T14', 'T15', 'T16', 'T17', 'T18', 'T19', 'T20',
-                                'FINAL', 'MID', 'QUIZ', 'ASSIGNMENT', 'PRACTICAL', 'PROJECT', 'VIVA'];
-
-        // Initialize the app
+        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("App initialized with enhanced UI");
-            
-            // Check if user is already logged in
-            auth.onAuthStateChanged(user => {
-                currentUser = user;
-                updateNavigation();
-                
-                if (user) {
-                    console.log("User is logged in:", user.email);
-                    if (authSection.style.display !== 'none') {
-                        showAdminPanel();
-                        loadAllStudents();
-                    }
-                } else {
-                    console.log("User is not logged in");
-                }
-            });
-
-            // Event listeners for navigation
-            homeLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                showHomePage();
-            });
-            
-            checkResultLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                showCheckResultSection();
-            });
-            
-            adminLink.addEventListener('click', (e) => {
-                e.preventDefault();
+            // Navigation
+            document.getElementById('homeLink').addEventListener('click', () => showSection('homeSection'));
+            document.getElementById('checkResultLink').addEventListener('click', () => showSection('checkResultSection'));
+            document.getElementById('adminLink').addEventListener('click', () => {
                 if (currentUser) {
-                    showAdminPanel();
+                    showSection('adminSection');
                     loadAllStudents();
                 } else {
-                    showAuthSection();
+                    showSection('authSection');
                 }
             });
-            
-            homeBrand.addEventListener('click', (e) => {
-                e.preventDefault();
-                showHomePage();
-            });
-            
-            logoutLink.addEventListener('click', logout);
-            goToCheckResult.addEventListener('click', showCheckResultSection);
+            document.getElementById('goToCheckResult').addEventListener('click', () => showSection('checkResultSection'));
+            document.getElementById('logoutLink').addEventListener('click', logout);
 
             // Authentication
-            loginBtn.addEventListener('click', login);
+            document.getElementById('loginBtn').addEventListener('click', login);
 
-            // Result checking
-            fetchResultBtn.addEventListener('click', fetchResultFromFirebase);
+            // Result Functions
+            document.getElementById('fetchResultBtn').addEventListener('click', fetchResult);
 
-            // Admin functions
-            addStudentBtn.addEventListener('click', addStudent);
-            addMarksBtn.addEventListener('click', addOrUpdateMarks);
-            autoFillBtn.addEventListener('click', autoFillStudentName);
-            exportExcelBtn.addEventListener('click', exportToExcelFromFirebase);
-            deleteResultBtn.addEventListener('click', deleteStudentResultOnly);
-            deleteStudentBtn.addEventListener('click', deleteCompleteStudent);
-            searchBtn.addEventListener('click', searchStudents);
+            // Admin Functions
+            document.getElementById('addStudentBtn').addEventListener('click', addStudent);
+            document.getElementById('addMarksBtn').addEventListener('click', addMarks);
+            document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
+            document.getElementById('deleteResultBtn').addEventListener('click', deleteResults);
+            document.getElementById('deleteStudentBtn').addEventListener('click', deleteStudent);
+            document.getElementById('searchBtn').addEventListener('click', searchStudents);
             
-            // Test type suggestions
-            testTypeInput.addEventListener('input', showTestTypeSuggestions);
-            testTypeInput.addEventListener('focus', showTestTypeSuggestions);
-            testTypeInput.addEventListener('keydown', handleTestTypeKeydown);
-            
-            // Hide suggestions when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!e.target.closest('.test-type-container')) {
-                    testTypeSuggestions.style.display = 'none';
-                }
-            });
-            
-            // Auto-fill when roll number is entered
-            updateRollNumber.addEventListener('change', function() {
-                if (this.value.trim() && this.value.startsWith('0')) {
-                    autoFillStudentName();
-                }
+            // Auto-fill student name
+            document.getElementById('updateRollNumber').addEventListener('change', autoFillName);
+
+            // Auth state listener
+            auth.onAuthStateChanged(user => {
+                currentUser = user;
+                document.getElementById('logoutLink').style.display = user ? 'block' : 'none';
             });
 
-            // Show check result section by default
-            showCheckResultSection();
-            
-            // Initialize form validation
-            initializeFormValidation();
+            // Show check result by default
+            showSection('checkResultSection');
         });
 
-        // Initialize form validation
-        function initializeFormValidation() {
-            // Add student form
-            addRollNumber.addEventListener('input', validateRollNumber);
-            addStudentName.addEventListener('input', validateStudentName);
-            
-            // Update marks form
-            updateRollNumber.addEventListener('input', validateUpdateRollNumber);
-            document.getElementById('subject').addEventListener('input', validateSubject);
-            testTypeInput.addEventListener('input', validateTestType);
-            document.getElementById('totalMarks').addEventListener('input', validateTotalMarks);
-            document.getElementById('obtainedMarks').addEventListener('input', validateObtainedMarks);
-            
-            // Check result form
-            rollNumberInput.addEventListener('input', validateCheckResultRollNumber);
-            
-            // Delete form
-            deleteRollNumber.addEventListener('input', validateDeleteRollNumber);
-        }
-
-        // Validation functions
-        function validateRollNumber() {
-            const rollNo = addRollNumber.value.trim();
-            const isValid = rollNo.startsWith('0') && rollNo.length > 1;
-            
-            if (rollNo && !isValid) {
-                addRollNumber.classList.add('is-invalid');
-                return false;
-            } else {
-                addRollNumber.classList.remove('is-invalid');
-                return true;
-            }
-        }
-        
-        function validateStudentName() {
-            const name = addStudentName.value.trim();
-            
-            if (!name) {
-                addStudentName.classList.add('is-invalid');
-                return false;
-            } else {
-                addStudentName.classList.remove('is-invalid');
-                return true;
-            }
-        }
-        
-        function validateUpdateRollNumber() {
-            const rollNo = updateRollNumber.value.trim();
-            const isValid = rollNo.startsWith('0') && rollNo.length > 1;
-            
-            if (rollNo && !isValid) {
-                updateRollNumber.classList.add('is-invalid');
-                return false;
-            } else {
-                updateRollNumber.classList.remove('is-invalid');
-                return true;
-            }
-        }
-        
-        function validateSubject() {
-            const subject = document.getElementById('subject').value.trim();
-            
-            if (!subject) {
-                document.getElementById('subject').classList.add('is-invalid');
-                return false;
-            } else {
-                document.getElementById('subject').classList.remove('is-invalid');
-                return true;
-            }
-        }
-        
-        function validateTestType() {
-            const testType = testTypeInput.value.trim().toUpperCase();
-            
-            if (!testType) {
-                testTypeInput.classList.add('is-invalid');
-                return false;
-            } else {
-                testTypeInput.classList.remove('is-invalid');
-                return true;
-            }
-        }
-        
-        function validateTotalMarks() {
-            const totalMarks = document.getElementById('totalMarks').value;
-            
-            if (!totalMarks || isNaN(totalMarks) || totalMarks <= 0) {
-                document.getElementById('totalMarks').classList.add('is-invalid');
-                return false;
-            } else {
-                document.getElementById('totalMarks').classList.remove('is-invalid');
-                return true;
-            }
-        }
-        
-        function validateObtainedMarks() {
-            const obtainedMarks = document.getElementById('obtainedMarks').value.trim();
-            
-            if (!obtainedMarks) {
-                document.getElementById('obtainedMarks').classList.add('is-invalid');
-                return false;
-            } else if (obtainedMarks !== 'A' && obtainedMarks !== 'a' && 
-                      (isNaN(obtainedMarks) || obtainedMarks < 0)) {
-                document.getElementById('obtainedMarks').classList.add('is-invalid');
-                return false;
-            } else {
-                document.getElementById('obtainedMarks').classList.remove('is-invalid');
-                return true;
-            }
-        }
-        
-        function validateCheckResultRollNumber() {
-            const rollNo = rollNumberInput.value.trim();
-            const isValid = rollNo.startsWith('0') && rollNo.length > 1;
-            
-            if (rollNo && !isValid) {
-                rollNumberInput.classList.add('is-invalid');
-                return false;
-            } else {
-                rollNumberInput.classList.remove('is-invalid');
-                return true;
-            }
-        }
-        
-        function validateDeleteRollNumber() {
-            const rollNo = deleteRollNumber.value.trim();
-            const isValid = rollNo.startsWith('0') && rollNo.length > 1;
-            
-            if (rollNo && !isValid) {
-                deleteRollNumber.classList.add('is-invalid');
-                return false;
-            } else {
-                deleteRollNumber.classList.remove('is-invalid');
-                return true;
-            }
-        }
-
-        // Test type suggestions
-        function showTestTypeSuggestions() {
-            const input = testTypeInput.value.trim().toUpperCase();
-            const suggestions = commonTestTypes.filter(type => 
-                type.includes(input) || input === ''
-            );
-            
-            if (suggestions.length > 0 && input !== '') {
-                testTypeSuggestions.innerHTML = suggestions.map(type => 
-                    `<div class="test-type-suggestion" data-value="${type}">${type}</div>`
-                ).join('');
-                testTypeSuggestions.style.display = 'block';
-                
-                // Add click event to suggestions
-                document.querySelectorAll('.test-type-suggestion').forEach(suggestion => {
-                    suggestion.addEventListener('click', function() {
-                        testTypeInput.value = this.getAttribute('data-value');
-                        testTypeSuggestions.style.display = 'none';
-                        validateTestType();
-                    });
-                });
-            } else {
-                testTypeSuggestions.style.display = 'none';
-            }
-        }
-        
-        function handleTestTypeKeydown(e) {
-            const suggestions = document.querySelectorAll('.test-type-suggestion');
-            const activeSuggestion = document.querySelector('.test-type-suggestion.active');
-            let index = Array.from(suggestions).indexOf(activeSuggestion);
-            
-            if (e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (suggestions.length > 0) {
-                    if (activeSuggestion) {
-                        activeSuggestion.classList.remove('active');
-                        index = (index + 1) % suggestions.length;
-                    } else {
-                        index = 0;
-                    }
-                    suggestions[index].classList.add('active');
-                    suggestions[index].scrollIntoView({ block: 'nearest' });
-                }
-            } else if (e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (suggestions.length > 0) {
-                    if (activeSuggestion) {
-                        activeSuggestion.classList.remove('active');
-                        index = (index - 1 + suggestions.length) % suggestions.length;
-                    } else {
-                        index = suggestions.length - 1;
-                    }
-                    suggestions[index].classList.add('active');
-                    suggestions[index].scrollIntoView({ block: 'nearest' });
-                }
-            } else if (e.key === 'Enter' && activeSuggestion) {
-                e.preventDefault();
-                testTypeInput.value = activeSuggestion.getAttribute('data-value');
-                testTypeSuggestions.style.display = 'none';
-                validateTestType();
-            } else if (e.key === 'Escape') {
-                testTypeSuggestions.style.display = 'none';
-            }
-        }
-
-        // Update navigation based on login status
-        function updateNavigation() {
-            if (currentUser) {
-                logoutLink.style.display = 'inline-block';
-                adminLink.innerHTML = '<i class="fas fa-user-shield me-1"></i>Admin Panel';
-            } else {
-                logoutLink.style.display = 'none';
-                adminLink.innerHTML = '<i class="fas fa-user-shield me-1"></i>Admin';
-            }
-        }
-
-        // Update active navigation link
-        function updateActiveNav(activeId) {
-            // Remove active class from all nav links
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
+        // Navigation Functions
+        function showSection(sectionId) {
+            sections.forEach(id => {
+                document.getElementById(id).style.display = id === sectionId ? 'block' : 'none';
             });
-            
-            // Add active class to clicked link
-            if (activeId) {
-                const activeLink = document.getElementById(activeId);
-                if (activeLink) {
-                    activeLink.classList.add('active');
-                }
-            }
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            const activeLink = sectionId === 'homeSection' ? 'homeLink' : 
+                              sectionId === 'checkResultSection' ? 'checkResultLink' : 
+                              sectionId === 'adminSection' ? 'adminLink' : null;
+            if (activeLink) document.getElementById(activeLink).classList.add('active');
         }
 
-        // Navigation functions
-        function showHomePage() {
-            homeSection.style.display = 'block';
-            checkResultSection.style.display = 'none';
-            authSection.style.display = 'none';
-            adminSection.style.display = 'none';
-            resultDisplaySection.style.display = 'none';
-            updateActiveNav('homeLink');
-        }
-
-        function showCheckResultSection() {
-            homeSection.style.display = 'none';
-            checkResultSection.style.display = 'block';
-            authSection.style.display = 'none';
-            adminSection.style.display = 'none';
-            resultDisplaySection.style.display = 'none';
-            rollMessage.innerHTML = '';
-            updateActiveNav('checkResultLink');
-        }
-
-        function showAuthSection() {
-            homeSection.style.display = 'none';
-            checkResultSection.style.display = 'none';
-            authSection.style.display = 'block';
-            adminSection.style.display = 'none';
-            updateActiveNav('adminLink');
-        }
-
-        function showAdminPanel() {
-            if (!currentUser) {
-                showAuthSection();
-                return;
-            }
-            
-            homeSection.style.display = 'none';
-            checkResultSection.style.display = 'none';
-            authSection.style.display = 'none';
-            adminSection.style.display = 'block';
-            updateActiveNav('adminLink');
-        }
-
-        // Authentication functions
+        // Authentication
         function login() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
-            // Validate
-            if (!email) {
-                document.getElementById('email').classList.add('is-invalid');
-                return;
-            }
-            if (!password) {
-                document.getElementById('password').classList.add('is-invalid');
-                return;
-            }
-            
             showMessage('authMessage', 'Logging in...', 'info');
             
             auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    currentUser = userCredential.user;
-                    showMessage('authMessage', 'Login successful! Redirecting...', 'success');
-                    updateNavigation();
+                .then(() => {
+                    showMessage('authMessage', 'Login successful!', 'success');
                     setTimeout(() => {
-                        showAdminPanel();
+                        showSection('adminSection');
                         loadAllStudents();
                     }, 1000);
                 })
-                .catch((error) => {
-                    const errorCode = error.code;
-                    let friendlyMessage = "Login failed. Please check your credentials.";
-                    
-                    if (errorCode === 'auth/user-not-found') {
-                        friendlyMessage = "No user found with this email.";
-                    } else if (errorCode === 'auth/wrong-password') {
-                        friendlyMessage = "Incorrect password.";
-                    } else if (errorCode === 'auth/invalid-email') {
-                        friendlyMessage = "Invalid email format.";
-                    }
-                    
-                    showMessage('authMessage', friendlyMessage, 'danger');
-                    console.error("Login error:", errorCode, error.message);
+                .catch(error => {
+                    showMessage('authMessage', `Login failed: ${error.message}`, 'danger');
                 });
         }
 
         function logout() {
             auth.signOut().then(() => {
                 currentUser = null;
-                updateNavigation();
-                showCheckResultSection();
-            }).catch((error) => {
-                console.error('Logout error:', error);
+                showSection('checkResultSection');
             });
         }
 
-        // Show message with style
-        function showMessage(elementId, message, type) {
-            const element = document.getElementById(elementId);
-            const alertClass = {
-                'success': 'alert-success-custom',
-                'danger': 'alert-danger-custom',
-                'info': 'alert-info-custom',
-                'warning': 'alert-warning-custom'
-            }[type] || 'alert-info-custom';
+        // Result Functions
+        function fetchResult() {
+            const rollNumber = document.getElementById('rollNumber').value.trim();
             
-            element.innerHTML = `<div class="alert-message ${alertClass}">${message}</div>`;
-        }
-
-        // Auto-fill student name when roll number is entered
-        function autoFillStudentName() {
-            const rollNo = updateRollNumber.value.trim();
-            
-            if (!validateUpdateRollNumber()) {
-                showMessage('updateMarksMessage', 'Please enter a valid roll number starting with 0.', 'danger');
+            // FIXED: Validate roll number starts with 0
+            if (!rollNumber.startsWith('0')) {
+                showMessage('rollMessage', 'Roll number must start with 0', 'danger');
                 return;
             }
             
-            showMessage('updateMarksMessage', 'Loading student information...', 'info');
+            showMessage('rollMessage', 'Fetching result...', 'info');
             
-            const studentRef = database.ref('students/' + rollNo);
-            
-            studentRef.once('value')
-                .then((snapshot) => {
+            database.ref('students/' + rollNumber).once('value')
+                .then(snapshot => {
                     if (snapshot.exists()) {
-                        const studentData = snapshot.val();
-                        studentName.value = studentData.name || '';
-                        showMessage('updateMarksMessage', 'Student name auto-filled!', 'success');
+                        displayResult(snapshot.val(), rollNumber);
                     } else {
-                        studentName.value = '';
-                        showMessage('updateMarksMessage', 'Student not found. Add student first.', 'info');
+                        showMessage('rollMessage', 'Student not found', 'danger');
                     }
                 })
-                .catch((error) => {
-                    showMessage('updateMarksMessage', `Error loading student: ${error.message}`, 'danger');
-                    console.error("Error loading student:", error);
+                .catch(error => {
+                    showMessage('rollMessage', `Error: ${error.message}`, 'danger');
                 });
         }
 
-        // Add new student
+        function displayResult(studentData, rollNumber) {
+            currentResultData = { studentData, rollNumber };
+            let html = `
+                <div class="section-card">
+                    <div class="result-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h3 class="mb-2">${studentData.name || 'N/A'}</h3>
+                                <p class="mb-0"><i class="fas fa-id-card me-2"></i>Roll No: ${rollNumber}</p>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <!-- FIXED: Corrected downloadPDF call -->
+                                <button class="btn btn-light" id="downloadPDFBtn">
+                                    <i class="fas fa-file-pdf me-2"></i>Download PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>`;
+            
+            if (studentData.subjects && Object.keys(studentData.subjects).length > 0) {
+                const subjects = Object.keys(studentData.subjects);
+                let overallTotal = 0, overallObtained = 0;
+                const testTypes = new Set();
+                
+                // Collect all test types
+                subjects.forEach(subject => {
+                    Object.keys(studentData.subjects[subject]).forEach(testType => {
+                        testTypes.add(testType.replace(/_/g, ' ').toUpperCase());
+                    });
+                });
+                
+                // Sort test types: T1, T2, T3... then others
+                const testTypesArray = Array.from(testTypes).sort((a, b) => {
+                    if (a.startsWith('T') && b.startsWith('T')) {
+                        const aNum = parseInt(a.substring(1)) || 0;
+                        const bNum = parseInt(b.substring(1)) || 0;
+                        return aNum - bNum;
+                    } else if (a.startsWith('T')) return -1;
+                    else if (b.startsWith('T')) return 1;
+                    else return a.localeCompare(b);
+                });
+                
+                // Initialize test type totals
+                const testTypeTotals = {};
+                testTypesArray.forEach(testType => {
+                    testTypeTotals[testType] = { total: 0, obtained: 0 };
+                });
+                
+                html += `<div class="table-container">
+                    <table class="result-table">
+                        <thead>
+                            <tr>
+                                <th class="subject-header" rowspan="2">Subject</th>`;
+                
+                // Add test type headers with colspan 2 for Total/Obtained
+                testTypesArray.forEach(testType => {
+                    html += `<th class="test-type-header" colspan="2">${testType}</th>`;
+                });
+                
+                html += `<th class="test-total-header" colspan="2">All Test Total Marks</th>
+                        <th class="subject-header" rowspan="2">%age</th>
+                        <th class="subject-header" rowspan="2">Status</th>
+                    </tr>
+                    <tr>`;
+                
+                // Add sub-headers for Total and Obtained for each test type
+                testTypesArray.forEach(() => {
+                    html += `<th class="test-type-col">Total</th>
+                            <th class="obtained-col">Obtained</th>`;
+                });
+                
+                html += `<th class="total-col">Total</th>
+                        <th class="obtained-col">Obtained</th>
+                    </tr>
+                    </thead>
+                    <tbody>`;
+                
+                // Add subject rows
+                subjects.forEach(subjectName => {
+                    const subject = studentData.subjects[subjectName];
+                    let subjectTotal = 0, subjectObtained = 0;
+                    
+                    html += `<tr><td class="subject-name">${subjectName}</td>`;
+                    
+                    // Add test type marks in Total/Obtained columns
+                    testTypesArray.forEach(testType => {
+                        const testTypeKey = testType.replace(/\s+/g, '_');
+                        if (subject[testTypeKey]) {
+                            const marks = subject[testTypeKey];
+                            const total = marks.total || 0;
+                            const obtained = marks.obtained || 'A';
+                            const isAbsent = obtained === 'A';
+                            const obtainedNum = isAbsent ? 0 : parseFloat(obtained);
+                            
+                            subjectTotal += total;
+                            if (!isAbsent) {
+                                subjectObtained += obtainedNum;
+                                testTypeTotals[testType].obtained += obtainedNum;
+                            }
+                            testTypeTotals[testType].total += total;
+                            
+                            html += `<td class="total-col marks-cell">${total}</td>
+                                    <td class="obtained-col marks-cell ${isAbsent ? 'absent-mark' : ''}">
+                                        ${isAbsent ? 'A' : obtained}
+                                    </td>`;
+                        } else {
+                            html += `<td class="total-col">-</td><td class="obtained-col">-</td>`;
+                        }
+                    });
+                    
+                    const percentage = subjectTotal > 0 ? ((subjectObtained / subjectTotal) * 100).toFixed(2) : 0;
+                    const status = percentage >= 50 ? 'PASS' : 'FAIL';
+                    
+                    overallTotal += subjectTotal;
+                    overallObtained += subjectObtained;
+                    
+                    html += `<td class="total-col">${subjectTotal}</td>
+                            <td class="obtained-col">${subjectObtained}</td>
+                            <td class="percentage-cell">${percentage}%</td>
+                            <td><span class="${status === 'PASS' ? 'status-pass' : 'status-fail'}">${status}</span></td>
+                        </tr>`;
+                });
+                
+                // Add total row
+                const overallPercentage = overallTotal > 0 ? ((overallObtained / overallTotal) * 100).toFixed(2) : 0;
+                const overallStatus = overallPercentage >= 50 ? 'PASS' : 'FAIL';
+                
+                html += `<tr class="total-row">
+                    <td class="subject-name">GRAND TOTAL</td>`;
+                
+                // Add test type totals
+                testTypesArray.forEach(testType => {
+                    const total = testTypeTotals[testType];
+                    html += `<td class="total-col">${total.total}</td>
+                            <td class="obtained-col">${total.obtained}</td>`;
+                });
+                
+                html += `<td class="total-col">${overallTotal}</td>
+                        <td class="obtained-col">${overallObtained}</td>
+                        <td class="percentage-cell">${overallPercentage}%</td>
+                        <td><span class="${overallStatus === 'PASS' ? 'status-pass' : 'status-fail'}">
+                            ${overallStatus}
+                        </span></td>
+                    </tr>`;
+                
+                html += `</tbody></table></div>`;
+                
+                // Add test type summary
+                html += `<div class="mt-4">
+                    <h5><i class="fas fa-chart-pie me-2"></i>Test Type Performance Summary</h5>
+                    <div class="row mt-3">`;
+                
+                testTypesArray.forEach(testType => {
+                    const total = testTypeTotals[testType];
+                    const percentage = total.total > 0 ? ((total.obtained / total.total) * 100).toFixed(2) : 0;
+                    const progressColor = percentage >= 75 ? 'success' : percentage >= 50 ? 'warning' : 'danger';
+                    
+                    html += `
+                        <div class="col-md-3 mb-3">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title mb-2">${testType}</h6>
+                                    <div class="mb-2">
+                                        <span class="h4 text-${progressColor}">${percentage}%</span>
+                                    </div>
+                                    <p class="card-text small mb-0">
+                                        <span class="text-primary">${total.obtained}</span> / 
+                                        <span class="text-secondary">${total.total}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                
+                html += `</div></div>`;
+            } else {
+                html += `<div class="alert alert-info alert-custom">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Student registered but no results available yet. Add marks from Admin Panel.
+                </div>`;
+            }
+            
+            html += `</div>`;
+            document.getElementById('resultDisplaySection').innerHTML = html;
+            showMessage('rollMessage', '', 'success');
+            
+            // FIXED: Add event listener to the download button after it's created
+            document.getElementById('downloadPDFBtn').addEventListener('click', downloadPDF);
+        }
+
+        // FIXED: downloadPDF function - Properly implemented
+        function downloadPDF() {
+            if (!currentResultData) return;
+            const { studentData, rollNumber } = currentResultData;
+            
+            // Create a new jsPDF instance
+            const doc = new jsPDF('l', 'mm', 'a4'); // landscape mode
+            
+            // Add title
+            doc.setFontSize(20);
+            doc.setTextColor(44, 62, 80);
+            doc.text(`Student Result - ${studentData.name || 'N/A'}`, 20, 20);
+            
+            // Add roll number
+            doc.setFontSize(12);
+            doc.text(`Roll Number: ${rollNumber}`, 20, 30);
+            
+            if (studentData.subjects && Object.keys(studentData.subjects).length > 0) {
+                const subjects = Object.keys(studentData.subjects);
+                const testTypes = new Set();
+                
+                // Collect all test types
+                subjects.forEach(subject => {
+                    Object.keys(studentData.subjects[subject]).forEach(testType => {
+                        testTypes.add(testType.replace(/_/g, ' ').toUpperCase());
+                    });
+                });
+                
+                // Sort test types
+                const testTypesArray = Array.from(testTypes).sort((a, b) => {
+                    if (a.startsWith('T') && b.startsWith('T')) {
+                        const aNum = parseInt(a.substring(1)) || 0;
+                        const bNum = parseInt(b.substring(1)) || 0;
+                        return aNum - bNum;
+                    } else if (a.startsWith('T')) return -1;
+                    else if (b.startsWith('T')) return 1;
+                    else return a.localeCompare(b);
+                });
+                
+                // Create table data
+                const tableData = [];
+                const headers = ['Subject'];
+                
+                // Add headers for test types
+                testTypesArray.forEach(testType => {
+                    headers.push(`${testType} Total`, `${testType} Obtained`);
+                });
+                headers.push('Total', 'Obtained', 'Percentage', 'Status');
+                
+                // Add subject rows
+                subjects.forEach(subjectName => {
+                    const subject = studentData.subjects[subjectName];
+                    const rowData = [subjectName];
+                    let subjectTotal = 0, subjectObtained = 0;
+                    
+                    testTypesArray.forEach(testType => {
+                        const testTypeKey = testType.replace(/\s+/g, '_');
+                        if (subject[testTypeKey]) {
+                            const marks = subject[testTypeKey];
+                            const total = marks.total || 0;
+                            const obtained = marks.obtained || 'A';
+                            subjectTotal += total;
+                            if (obtained !== 'A') subjectObtained += parseFloat(obtained);
+                            
+                            rowData.push(total, obtained);
+                        } else {
+                            rowData.push('-', '-');
+                        }
+                    });
+                    
+                    const percentage = subjectTotal > 0 ? ((subjectObtained / subjectTotal) * 100).toFixed(2) : 0;
+                    const status = subjectTotal > 0 && percentage >= 50 ? 'PASS' : 'FAIL';
+                    
+                    rowData.push(subjectTotal, subjectObtained, percentage + '%', status);
+                    tableData.push(rowData);
+                });
+                
+                // Calculate overall totals
+                let overallTotal = 0, overallObtained = 0;
+                subjects.forEach(subjectName => {
+                    const subject = studentData.subjects[subjectName];
+                    testTypesArray.forEach(testType => {
+                        const testTypeKey = testType.replace(/\s+/g, '_');
+                        if (subject[testTypeKey]) {
+                            const marks = subject[testTypeKey];
+                            const total = marks.total || 0;
+                            const obtained = marks.obtained || 'A';
+                            overallTotal += total;
+                            if (obtained !== 'A') overallObtained += parseFloat(obtained);
+                        }
+                    });
+                });
+                
+                const overallPercentage = overallTotal > 0 ? ((overallObtained / overallTotal) * 100).toFixed(2) : 0;
+                const overallStatus = overallTotal > 0 && overallPercentage >= 50 ? 'PASS' : 'FAIL';
+                
+                // Add total row
+                const totalRow = ['GRAND TOTAL'];
+                testTypesArray.forEach(testType => {
+                    const testTypeKey = testType.replace(/\s+/g, '_');
+                    let testTypeTotal = 0, testTypeObtained = 0;
+                    
+                    subjects.forEach(subjectName => {
+                        const subject = studentData.subjects[subjectName];
+                        if (subject[testTypeKey]) {
+                            const marks = subject[testTypeKey];
+                            testTypeTotal += marks.total || 0;
+                            const obtained = marks.obtained || 'A';
+                            if (obtained !== 'A') testTypeObtained += parseFloat(obtained);
+                        }
+                    });
+                    
+                    totalRow.push(testTypeTotal, testTypeObtained);
+                });
+                
+                totalRow.push(overallTotal, overallObtained, overallPercentage + '%', overallStatus);
+                tableData.push(totalRow);
+                
+                // Generate table using autoTable
+                doc.autoTable({
+                    startY: 40,
+                    head: [headers],
+                    body: tableData,
+                    theme: 'grid',
+                    headStyles: { 
+                        fillColor: [44, 62, 80],
+                        textColor: [255, 255, 255],
+                        fontSize: 10
+                    },
+                    bodyStyles: { fontSize: 9 },
+                    alternateRowStyles: { fillColor: [245, 245, 245] },
+                    margin: { left: 10, right: 10 },
+                    styles: { overflow: 'linebreak', cellWidth: 'wrap' },
+                    columnStyles: {
+                        0: { cellWidth: 30 },
+                    }
+                });
+                
+                // Add footer with date
+                const pageCount = doc.internal.getNumberOfPages();
+                for(let i = 1; i <= pageCount; i++) {
+                    doc.setPage(i);
+                    doc.setFontSize(8);
+                    doc.text(`Generated on ${new Date().toLocaleDateString()} - Page ${i} of ${pageCount}`, 10, doc.internal.pageSize.height - 10);
+                }
+            } else {
+                doc.setFontSize(14);
+                doc.text("No results available for this student.", 20, 50);
+            }
+            
+            // Save the PDF
+            doc.save(`Result_${rollNumber}.pdf`);
+        }
+
+        // Admin Functions
         function addStudent() {
-            if (!currentUser) {
-                showMessage('addStudentMessage', 'You must be logged in to add students.', 'danger');
+            const rollNo = document.getElementById('addRollNumber').value.trim();
+            const name = document.getElementById('addStudentName').value.trim();
+            
+            // FIXED: Only allow roll numbers starting with 0
+            if (!rollNo.startsWith('0') || !name) {
+                showMessage('addStudentMessage', 'Invalid data. Roll number must start with 0.', 'danger');
                 return;
             }
             
-            const rollNo = addRollNumber.value.trim();
-            const name = addStudentName.value.trim();
-            
-            // Validate
-            if (!validateRollNumber() || !validateStudentName()) {
-                showMessage('addStudentMessage', 'Please fill all fields correctly.', 'danger');
-                return;
-            }
-            
-            showMessage('addStudentMessage', 'Adding student...', 'info');
-            
-            // Check if student already exists
-            const studentRef = database.ref('students/' + rollNo);
-            
-            studentRef.once('value')
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        showMessage('addStudentMessage', 'Student with this roll number already exists.', 'warning');
-                    } else {
-                        // Add new student
-                        const studentData = {
-                            name: name,
-                            subjects: {}
-                        };
-                        
-                        return studentRef.set(studentData);
-                    }
-                })
-                .then(() => {
-                    if (document.getElementById('addStudentMessage').innerHTML.includes('already exists')) return;
-                    
-                    showMessage('addStudentMessage', 'Student added successfully!', 'success');
-                    addRollNumber.value = '';
-                    addStudentName.value = '';
-                    
-                    // Clear validation
-                    addRollNumber.classList.remove('is-invalid');
-                    addStudentName.classList.remove('is-invalid');
-                    
-                    // Reload all students list
-                    loadAllStudents();
-                })
-                .catch((error) => {
-                    showMessage('addStudentMessage', `Error adding student: ${error.message}`, 'danger');
-                    console.error("Error adding student:", error);
-                });
+            database.ref('students/' + rollNo).set({
+                name: name,
+                subjects: {}
+            }).then(() => {
+                showMessage('addStudentMessage', 'Student added successfully', 'success');
+                document.getElementById('addRollNumber').value = '';
+                document.getElementById('addStudentName').value = '';
+                loadAllStudents();
+            }).catch(error => {
+                showMessage('addStudentMessage', `Error: ${error.message}`, 'danger');
+            });
         }
 
-        // Add or update marks - FIXED TO HANDLE SPACES IN TEST TYPE
-        function addOrUpdateMarks() {
-            if (!currentUser) {
-                showMessage('updateMarksMessage', 'You must be logged in to update marks.', 'danger');
-                return;
-            }
-            
-            const rollNo = updateRollNumber.value.trim();
+        function addMarks() {
+            const rollNo = document.getElementById('updateRollNumber').value.trim();
             const subject = document.getElementById('subject').value.trim();
-            let testType = testTypeInput.value.trim();
+            const testType = document.getElementById('testType').value.toUpperCase().replace(/\s+/g, '_');
             const totalMarks = document.getElementById('totalMarks').value;
             const obtainedMarks = document.getElementById('obtainedMarks').value;
             
-            // Validate all fields
-            if (!validateUpdateRollNumber() || !validateSubject() || !validateTestType() || 
-                !validateTotalMarks() || !validateObtainedMarks()) {
-                showMessage('updateMarksMessage', 'Please fill all fields correctly.', 'danger');
+            // FIXED: Validate roll number starts with 0
+            if (!rollNo.startsWith('0') || !subject || !testType || !totalMarks) {
+                showMessage('updateMarksMessage', 'Please fill all fields correctly. Roll number must start with 0.', 'danger');
                 return;
             }
             
-            // FIX: Remove spaces from test type to use as Firebase key
-            // Convert to uppercase and replace spaces with underscores for Firebase key
-            const testTypeKey = testType.toUpperCase().replace(/\s+/g, '_');
-            // Keep original format for display
-            const testTypeDisplay = testType.toUpperCase();
-            
-            showMessage('updateMarksMessage', 'Saving marks...', 'info');
-            
-            // Prepare data for Firebase
-            const marksData = {
-                total: parseFloat(totalMarks),
-                obtained: obtainedMarks.toUpperCase()
-            };
-            
-            // Get student data first
-            const studentRef = database.ref('students/' + rollNo);
-            
-            studentRef.once('value')
-                .then((snapshot) => {
+            database.ref('students/' + rollNo).once('value')
+                .then(snapshot => {
                     if (!snapshot.exists()) {
-                        showMessage('updateMarksMessage', 'Student not found. Add student first.', 'danger');
+                        showMessage('updateMarksMessage', 'Student not found. Please add student first.', 'danger');
                         return;
                     }
                     
@@ -1561,967 +969,310 @@
                         subjects: studentData.subjects || {}
                     };
                     
-                    // Initialize subject if not exists
-                    if (!updates.subjects[subject]) {
-                        updates.subjects[subject] = {};
-                    }
+                    if (!updates.subjects[subject]) updates.subjects[subject] = {};
+                    updates.subjects[subject][testType] = {
+                        total: parseFloat(totalMarks),
+                        obtained: obtainedMarks.toUpperCase()
+                    };
                     
-                    // Add test type marks using the sanitized key
-                    updates.subjects[subject][testTypeKey] = marksData;
-                    
-                    // Save to Firebase
-                    return studentRef.set(updates);
+                    return database.ref('students/' + rollNo).set(updates);
                 })
                 .then(() => {
-                    showMessage('updateMarksMessage', `Marks saved successfully for ${subject} (${testTypeDisplay})!`, 'success');
-                    
-                    // Clear form except roll number
-                    document.getElementById('subject').value = '';
-                    document.getElementById('totalMarks').value = '100';
-                    document.getElementById('obtainedMarks').value = '';
-                    testTypeInput.value = 'Final';
-                    
-                    // Clear validation
-                    document.getElementById('subject').classList.remove('is-invalid');
-                    testTypeInput.classList.remove('is-invalid');
-                    document.getElementById('totalMarks').classList.remove('is-invalid');
-                    document.getElementById('obtainedMarks').classList.remove('is-invalid');
-                    
-                    // Reload all students list
+                    showMessage('updateMarksMessage', 'Marks saved successfully', 'success');
                     loadAllStudents();
                 })
-                .catch((error) => {
-                    showMessage('updateMarksMessage', `Error saving marks: ${error.message}`, 'danger');
-                    console.error("Error saving marks:", error);
+                .catch(error => {
+                    showMessage('updateMarksMessage', `Error: ${error.message}`, 'danger');
                 });
         }
 
-        // Result fetching function from Firebase
-        function fetchResultFromFirebase() {
-            const rollNumber = rollNumberInput.value.trim();
-            
-            if (!validateCheckResultRollNumber()) {
-                showMessage('rollMessage', 'Please enter a valid roll number starting with 0.', 'danger');
-                return;
-            }
-            
-            showMessage('rollMessage', 'Fetching result...', 'info');
-            
-            // Get student data from Firebase
-            const studentRef = database.ref('students/' + rollNumber);
-            
-            studentRef.once('value')
-                .then((snapshot) => {
-                    if (snapshot.exists()) {
-                        const studentData = snapshot.val();
-                        displayResultFromFirebase(studentData, rollNumber);
-                        showMessage('rollMessage', '', 'success');
-                        rollNumberInput.classList.remove('is-invalid');
-                    } else {
-                        showMessage('rollMessage', 'No student found with roll number: ' + rollNumber, 'danger');
-                    }
-                })
-                .catch((error) => {
-                    showMessage('rollMessage', `Error fetching data: ${error.message}`, 'danger');
-                    console.error("Error fetching student data:", error);
-                });
-        }
-
-        // Display result function - FIXED: Simplified table structure to show T1, T2 totals properly
-        function displayResultFromFirebase(studentData, rollNumber) {
-            resultDisplaySection.style.display = 'block';
-            resultDisplaySection.innerHTML = '';
-            
-            // Store data for PDF export
-            currentResultData = { studentData, rollNumber };
-            
-            // Calculate totals
-            let totalObtained = 0;
-            let totalPossible = 0;
-            const subjects = [];
-            const failedSubjects = [];
-            const testTypes = new Set();
-            
-            // Check if student has subjects data
-            if (!studentData.subjects) {
-                resultDisplaySection.innerHTML = '<div class="alert-message alert-warning-custom">No subject data available for this student.</div>';
-                return;
-            }
-            
-            // Collect all test types
-            Object.keys(studentData.subjects).forEach(subjectName => {
-                const subject = studentData.subjects[subjectName];
-                Object.keys(subject).forEach(testType => {
-                    // FIX: Convert underscores back to spaces for display
-                    const displayTestType = testType.replace(/_/g, ' ');
-                    testTypes.add(displayTestType);
-                });
-            });
-            
-            const testTypesArray = Array.from(testTypes).sort((a, b) => {
-                // Sort test types: T1, T2, ... T20, then others
-                if (a.startsWith('T') && b.startsWith('T')) {
-                    const aNum = parseInt(a.substring(1)) || 0;
-                    const bNum = parseInt(b.substring(1)) || 0;
-                    return aNum - bNum;
-                } else if (a.startsWith('T')) return -1;
-                else if (b.startsWith('T')) return 1;
-                else return a.localeCompare(b);
-            });
-            
-            // Initialize test type totals
-            const testTypeTotals = {};
-            testTypesArray.forEach(testType => {
-                testTypeTotals[testType] = {
-                    totalObtained: 0,
-                    totalPossible: 0
-                };
-            });
-            
-            // Process subjects from Firebase data
-            Object.keys(studentData.subjects).forEach(subjectName => {
-                const subject = studentData.subjects[subjectName];
-                const subjectData = {
-                    name: subjectName,
-                    tests: {},
-                    subjectTotalObtained: 0,
-                    subjectTotalPossible: 0
-                };
-                
-                // Process each test type
-                testTypesArray.forEach(displayTestType => {
-                    // FIX: Convert spaces to underscores for Firebase key lookup
-                    const testTypeKey = displayTestType.replace(/\s+/g, '_');
-                    
-                    if (subject[testTypeKey]) {
-                        const marks = subject[testTypeKey];
-                        const obtained = marks.obtained || 'A';
-                        const total = marks.total || 0;
-                        const isAbsent = obtained === 'A' || obtained === 'a';
-                        const obtainedNum = isAbsent ? 0 : parseFloat(obtained);
-                        
-                        subjectData.tests[displayTestType] = {
-                            total: total,
-                            obtained: obtained,
-                            obtainedNum: obtainedNum,
-                            isAbsent: isAbsent
-                        };
-                        
-                        // Add to subject totals if not absent
-                        if (!isAbsent) {
-                            subjectData.subjectTotalObtained += obtainedNum;
-                            subjectData.subjectTotalPossible += total;
-                            
-                            // Add to test type totals
-                            testTypeTotals[displayTestType].totalObtained += obtainedNum;
-                            testTypeTotals[displayTestType].totalPossible += total;
+        function autoFillName() {
+            const rollNo = document.getElementById('updateRollNumber').value.trim();
+            if (rollNo.startsWith('0')) {
+                database.ref('students/' + rollNo).once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            document.getElementById('studentName').value = snapshot.val().name || '';
                         } else {
-                            subjectData.subjectTotalPossible += total;
-                            testTypeTotals[displayTestType].totalPossible += total;
+                            document.getElementById('studentName').value = '';
                         }
-                    } else {
-                        subjectData.tests[displayTestType] = null;
-                    }
-                });
-                
-                // Calculate subject percentage based on all test marks
-                const subjectPercentage = subjectData.subjectTotalPossible > 0 ? 
-                    (subjectData.subjectTotalObtained / subjectData.subjectTotalPossible) * 100 : 0;
-                
-                subjects.push({
-                    ...subjectData,
-                    percentage: subjectPercentage
-                });
-                
-                // Add to overall totals
-                totalObtained += subjectData.subjectTotalObtained;
-                totalPossible += subjectData.subjectTotalPossible;
-                
-                // Check if subject failed (less than 50%)
-                if (subjectPercentage < 50) {
-                    failedSubjects.push(subjectName);
-                }
-            });
-            
-            const overallPercentage = totalPossible > 0 ? ((totalObtained / totalPossible) * 100).toFixed(2) : "0.00";
-            
-            // Create the result display - SIMPLIFIED TABLE STRUCTURE
-            let resultHTML = `
-                <div class="result-container fade-in">
-                    <div class="student-info-card">
-                        <h3 class="text-white">Student Result</h3>
-                        <div class="row mt-4">
-                            <div class="col-md-6">
-                                <p><i class="fas fa-id-card me-2"></i><strong>Roll No:</strong> ${rollNumber}</p>
-                                <p><i class="fas fa-user me-2"></i><strong>Name:</strong> ${studentData.name || 'N/A'}</p>
-                            </div>
-                            <div class="col-md-6 text-md-end">
-                                <h4 class="text-white">${overallPercentage}%</h4>
-                                <p>Overall Percentage</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="table-responsive">
-                        <table class="result-table">
-                            <thead>
-                                <tr>
-                                    <th>Subject</th>
-            `;
-            
-            // Add test type headers
-            testTypesArray.forEach(testType => {
-                resultHTML += `<th>${testType}</th>`;
-            });
-            
-            resultHTML += `
-                                    <th>Total</th>
-                                    <th>Obtained</th>
-                                    <th>%age</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-            `;
-            
-            // Add subject rows
-            subjects.forEach(subject => {
-                const isFail = subject.percentage < 50;
-                
-                resultHTML += `
-                    <tr>
-                        <td class="text-start fw-bold">${subject.name}</td>
-                `;
-                
-                // Add test type columns - show obtained marks only
-                testTypesArray.forEach(testType => {
-                    const test = subject.tests[testType];
-                    if (test) {
-                        const obtainedDisplay = test.isAbsent ? 'A' : test.obtained;
-                        resultHTML += `
-                            <td class="fw-bold ${test.isAbsent ? 'text-danger' : ''}">${obtainedDisplay}</td>
-                        `;
-                    } else {
-                        resultHTML += `<td>-</td>`;
-                    }
-                });
-                
-                // Add subject totals, obtained, percentage and status
-                const subjectTotal = subject.subjectTotalPossible;
-                const subjectObtained = subject.subjectTotalObtained;
-                const subjectPercentage = subjectTotal > 0 ? ((subjectObtained / subjectTotal) * 100).toFixed(2) : 0;
-                const statusClass = subject.percentage < 50 ? 'subject-fail' : 'subject-pass';
-                const statusText = subject.percentage < 50 ? 'FAIL' : 'PASS';
-                
-                resultHTML += `
-                        <td class="fw-bold">${subjectTotal}</td>
-                        <td class="fw-bold">${subjectObtained}</td>
-                        <td class="fw-bold">${subjectPercentage}%</td>
-                        <td><span class="${statusClass}">${statusText}</span></td>
-                    </tr>
-                `;
-            });
-            
-            // Add test type total row
-            resultHTML += `
-                            <tr class="bg-light fw-bold">
-                                <td>TOTAL</td>
-            `;
-            
-            // Add totals for each test type
-            testTypesArray.forEach(testType => {
-                const testTotal = testTypeTotals[testType];
-                resultHTML += `<td>${testTotal.totalObtained}</td>`;
-            });
-            
-            // Add overall total row
-            resultHTML += `
-                                <td class="fw-bold">${totalPossible}</td>
-                                <td class="fw-bold">${totalObtained}</td>
-                                <td class="fw-bold">${overallPercentage}%</td>
-                                <td>
-                                    ${failedSubjects.length > 0 ? 
-                                        `<span class="subject-fail">${failedSubjects.length} Failed</span>` : 
-                                        '<span class="subject-pass">All Pass</span>'}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <div class="status-box">
-                    <h5><i class="fas fa-info-circle me-2"></i>Result Summary</h5>
-                    <div class="row mt-3">
-                        <div class="col-md-4">
-                            <p><strong>Overall Percentage:</strong> ${overallPercentage}%</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Total Marks:</strong> ${totalObtained} out of ${totalPossible}</p>
-                        </div>
-                        <div class="col-md-4">
-                            <p><strong>Result Status:</strong> ${failedSubjects.length > 0 ? 'Needs Improvement' : 'Excellent'}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-3">
-                        <p class="mb-2"><strong>Test Type Totals:</strong></p>
-                        <div class="row">
-            `;
-            
-            // Add test type totals in summary
-            testTypesArray.forEach(testType => {
-                const testTotal = testTypeTotals[testType];
-                resultHTML += `
-                    <div class="col-md-3 mb-2">
-                        <span class="badge bg-primary">${testType}: ${testTotal.totalObtained}/${testTotal.totalPossible}</span>
-                    </div>
-                `;
-            });
-            
-            resultHTML += `
-                        </div>
-                    </div>
-                    
-                    ${failedSubjects.length > 0 ? 
-                        `<div class="mt-3">
-                            <p class="mb-2"><strong>Subjects below 50%:</strong></p>
-                            ${failedSubjects.map(sub => `<span class="subject-fail me-2 mb-2 d-inline-block">${sub}</span>`).join('')}
-                        </div>` : 
-                        '<div class="mt-3"><p class="text-success fw-bold"><i class="fas fa-check-circle me-2"></i>Congratulations! All subjects passed.</p></div>'}
-                </div>
-                
-                <div class="mt-4 text-center">
-                    <button class="btn btn-secondary-custom" onclick="resultDisplaySection.style.display='none'">
-                        <i class="fas fa-times me-1"></i>Close Result
-                    </button>
-                    <button class="btn btn-pdf ms-3" onclick="downloadResultAsPDF()">
-                        <i class="fas fa-file-pdf me-1"></i>Download as PDF
-                    </button>
-                </div>
-            </div>
-            `;
-            
-            resultDisplaySection.innerHTML = resultHTML;
-            
-            // Scroll to result
-            resultDisplaySection.scrollIntoView({ behavior: 'smooth' });
+                    });
+            }
         }
 
-        // Download result as PDF
-        function downloadResultAsPDF() {
-            if (!currentResultData) return;
-            
-            const { studentData, rollNumber } = currentResultData;
-            
-            // Calculate data for PDF
-            let totalObtained = 0;
-            let totalPossible = 0;
-            const subjects = [];
-            const failedSubjects = [];
-            const testTypes = new Set();
-            const testTypeTotals = {};
-            
-            if (!studentData.subjects) {
-                alert('No result data available for PDF export.');
-                return;
-            }
-            
-            // Collect all test types
-            Object.keys(studentData.subjects).forEach(subjectName => {
-                const subject = studentData.subjects[subjectName];
-                Object.keys(subject).forEach(testType => {
-                    const displayTestType = testType.replace(/_/g, ' ');
-                    testTypes.add(displayTestType);
-                });
-            });
-            
-            const testTypesArray = Array.from(testTypes).sort((a, b) => {
-                if (a.startsWith('T') && b.startsWith('T')) {
-                    const aNum = parseInt(a.substring(1)) || 0;
-                    const bNum = parseInt(b.substring(1)) || 0;
-                    return aNum - bNum;
-                } else if (a.startsWith('T')) return -1;
-                else if (b.startsWith('T')) return 1;
-                else return a.localeCompare(b);
-            });
-            
-            // Initialize test type totals
-            testTypesArray.forEach(testType => {
-                testTypeTotals[testType] = {
-                    totalObtained: 0,
-                    totalPossible: 0
-                };
-            });
-            
-            // Process subjects
-            Object.keys(studentData.subjects).forEach(subjectName => {
-                const subject = studentData.subjects[subjectName];
-                const subjectData = {
-                    name: subjectName,
-                    tests: {},
-                    subjectTotalObtained: 0,
-                    subjectTotalPossible: 0
-                };
-                
-                testTypesArray.forEach(displayTestType => {
-                    const testTypeKey = displayTestType.replace(/\s+/g, '_');
-                    
-                    if (subject[testTypeKey]) {
-                        const marks = subject[testTypeKey];
-                        const obtained = marks.obtained || 'A';
-                        const total = marks.total || 0;
-                        const isAbsent = obtained === 'A' || obtained === 'a';
-                        const obtainedNum = isAbsent ? 0 : parseFloat(obtained);
-                        
-                        subjectData.tests[displayTestType] = {
-                            total: total,
-                            obtained: obtained,
-                            obtainedNum: obtainedNum,
-                            isAbsent: isAbsent
-                        };
-                        
-                        // Add to subject totals
-                        if (!isAbsent) {
-                            subjectData.subjectTotalObtained += obtainedNum;
-                            subjectData.subjectTotalPossible += total;
-                            testTypeTotals[displayTestType].totalObtained += obtainedNum;
-                        }
-                        subjectData.subjectTotalPossible += total;
-                        testTypeTotals[displayTestType].totalPossible += total;
-                    }
-                });
-                
-                const subjectPercentage = subjectData.subjectTotalPossible > 0 ? 
-                    (subjectData.subjectTotalObtained / subjectData.subjectTotalPossible) * 100 : 0;
-                
-                subjects.push({
-                    ...subjectData,
-                    percentage: subjectPercentage
-                });
-                
-                totalObtained += subjectData.subjectTotalObtained;
-                totalPossible += subjectData.subjectTotalPossible;
-                
-                if (subjectPercentage < 50) {
-                    failedSubjects.push(subjectName);
-                }
-            });
-            
-            const overallPercentage = totalPossible > 0 ? ((totalObtained / totalPossible) * 100).toFixed(2) : "0.00";
-            
-            // Create PDF
-            const doc = new jsPDF('landscape');
-            const pageWidth = doc.internal.pageSize.getWidth();
-            
-            // Add header
-            doc.setFontSize(20);
-            doc.setTextColor(42, 45, 124);
-            doc.text('STUDENT RESULT', pageWidth / 2, 20, { align: 'center' });
-            
-            doc.setFontSize(12);
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Roll Number: ${rollNumber}`, 20, 35);
-            doc.text(`Name: ${studentData.name || 'N/A'}`, 20, 45);
-            doc.text(`Overall Percentage: ${overallPercentage}%`, pageWidth - 20, 35, { align: 'right' });
-            doc.text(`Total Marks: ${totalObtained}/${totalPossible}`, pageWidth - 20, 45, { align: 'right' });
-            
-            // Prepare table data
-            const tableData = [];
-            
-            // Add headers row
-            const headers = ['Subject', ...testTypesArray, 'Total', 'Obtained', '%age', 'Status'];
-            
-            // Add subject rows
-            subjects.forEach(subject => {
-                const row = [subject.name];
-                
-                testTypesArray.forEach(testType => {
-                    const test = subject.tests[testType];
-                    if (test) {
-                        row.push(test.isAbsent ? 'A' : test.obtained);
-                    } else {
-                        row.push('-');
-                    }
-                });
-                
-                const subjectTotal = subject.subjectTotalPossible;
-                const subjectObtained = subject.subjectTotalObtained;
-                const subjectPercentage = subjectTotal > 0 ? ((subjectObtained / subjectTotal) * 100).toFixed(2) : 0;
-                
-                row.push(subjectTotal.toString());
-                row.push(subjectObtained.toString());
-                row.push(subjectPercentage + '%');
-                row.push(subject.percentage < 50 ? 'FAIL' : 'PASS');
-                
-                tableData.push(row);
-            });
-            
-            // Add test type total row
-            const testTotalRow = ['TEST TOTALS'];
-            testTypesArray.forEach(testType => {
-                const testTotal = testTypeTotals[testType];
-                testTotalRow.push(testTotal.totalObtained.toString());
-            });
-            testTotalRow.push(totalPossible.toString());
-            testTotalRow.push(totalObtained.toString());
-            testTotalRow.push(overallPercentage + '%');
-            testTotalRow.push(failedSubjects.length > 0 ? failedSubjects.length + ' Failed' : 'All Pass');
-            
-            tableData.push(testTotalRow);
-            
-            // Create table
-            doc.autoTable({
-                startY: 55,
-                head: [headers],
-                body: tableData,
-                theme: 'grid',
-                headStyles: { fillColor: [42, 45, 124], textColor: 255 },
-                alternateRowStyles: { fillColor: [240, 242, 255] },
-                columnStyles: {
-                    0: { cellWidth: 'auto' },
-                    ...Object.fromEntries(
-                        Array.from({length: headers.length - 1}, (_, i) => [i + 1, { cellWidth: 'auto' }])
-                    )
-                },
-                margin: { left: 10, right: 10 },
-                styles: { fontSize: 8, cellPadding: 3 }
-            });
-            
-            // Add footer with summary
-            const finalY = doc.lastAutoTable.finalY + 15;
-            
-            doc.setFontSize(10);
-            doc.text('Result Summary:', 20, finalY);
-            
-            let summaryY = finalY + 10;
-            doc.setFontSize(9);
-            doc.text(`Overall Percentage: ${overallPercentage}%`, 25, summaryY);
-            summaryY += 7;
-            doc.text(`Total Marks: ${totalObtained} out of ${totalPossible}`, 25, summaryY);
-            summaryY += 7;
-            doc.text(`Result Status: ${failedSubjects.length > 0 ? 'Needs Improvement' : 'Excellent'}`, 25, summaryY);
-            
-            // Add test type totals
-            summaryY += 7;
-            doc.text('Test Type Totals:', 25, summaryY);
-            summaryY += 7;
-            
-            testTypesArray.forEach((testType, index) => {
-                const testTotal = testTypeTotals[testType];
-                const xPos = 30 + (index % 4) * 45;
-                const yPos = summaryY + Math.floor(index / 4) * 7;
-                doc.text(`${testType}: ${testTotal.totalObtained}/${testTotal.totalPossible}`, xPos, yPos);
-            });
-            
-            summaryY += Math.ceil(testTypesArray.length / 4) * 7;
-            
-            if (failedSubjects.length > 0) {
-                summaryY += 7;
-                doc.text(`Subjects below 50%: ${failedSubjects.join(', ')}`, 25, summaryY);
-            }
-            
-            // Add footer
-            doc.setFontSize(8);
-            doc.setTextColor(100, 100, 100);
-            doc.text('Generated by Student Result Management System', pageWidth / 2, doc.internal.pageSize.getHeight() - 10, { align: 'center' });
-            doc.text(new Date().toLocaleDateString(), pageWidth - 20, doc.internal.pageSize.getHeight() - 10, { align: 'right' });
-            
-            // Save PDF
-            doc.save(`Student_Result_${rollNumber}.pdf`);
-        }
-
-        // Load all students for admin view
         function loadAllStudents() {
-            allResultsDisplay.innerHTML = '<div class="alert-message alert-info-custom">Loading all student results...</div>';
-            
-            const studentsRef = database.ref('students');
-            
-            studentsRef.once('value')
-                .then((snapshot) => {
-                    if (!snapshot.exists()) {
-                        allResultsDisplay.innerHTML = '<div class="alert-message alert-warning-custom">No student data found in database.</div>';
-                        return;
-                    }
-                    
+            database.ref('students').once('value')
+                .then(snapshot => {
                     const allStudents = snapshot.val();
-                    displayAllStudents(allStudents);
-                })
-                .catch((error) => {
-                    allResultsDisplay.innerHTML = `<div class="alert-message alert-danger-custom">Error loading data: ${error.message}</div>`;
-                    console.error("Error loading all students:", error);
-                });
-        }
-
-        // Display all students in cards
-        function displayAllStudents(allStudents) {
-            let studentsHTML = '';
-            let studentCount = 0;
-            
-            Object.keys(allStudents).forEach(rollNo => {
-                const student = allStudents[rollNo];
-                studentCount++;
-                
-                let totalObtained = 0;
-                let totalPossible = 0;
-                const failedSubjects = [];
-                let hasResults = false;
-                
-                // Calculate student statistics
-                if (student.subjects && Object.keys(student.subjects).length > 0) {
-                    hasResults = true;
-                    Object.keys(student.subjects).forEach(subjectName => {
-                        const subject = student.subjects[subjectName];
-                        
-                        // Calculate subject totals across all test types
-                        let subjectTotalObtained = 0;
-                        let subjectTotalPossible = 0;
-                        
-                        Object.keys(subject).forEach(testType => {
-                            const marks = subject[testType];
-                            const obtained = marks.obtained || 'A';
-                            const total = marks.total || 0;
-                            const isAbsent = obtained === 'A' || obtained === 'a';
-                            const obtainedNum = isAbsent ? 0 : parseFloat(obtained);
+                    let html = '';
+                    
+                    if (allStudents) {
+                        Object.keys(allStudents).forEach(rollNo => {
+                            const student = allStudents[rollNo];
+                            let totalMarks = 0, obtainedMarks = 0;
+                            let hasResults = false;
                             
-                            if (!isAbsent) {
-                                subjectTotalObtained += obtainedNum;
+                            if (student.subjects && Object.keys(student.subjects).length > 0) {
+                                hasResults = true;
+                                Object.keys(student.subjects).forEach(subject => {
+                                    Object.keys(student.subjects[subject]).forEach(testType => {
+                                        const marks = student.subjects[subject][testType];
+                                        const obtained = marks.obtained || 'A';
+                                        if (obtained !== 'A') obtainedMarks += parseFloat(obtained);
+                                        totalMarks += parseFloat(marks.total || 0);
+                                    });
+                                });
                             }
-                            subjectTotalPossible += total;
+                            
+                            const percentage = totalMarks > 0 ? ((obtainedMarks / totalMarks) * 100).toFixed(2) : 0;
+                            let statusClass = 'status-pass';
+                            let statusText = 'No Results';
+                            
+                            if (hasResults) {
+                                statusClass = percentage >= 50 ? 'status-pass' : 'status-fail';
+                                statusText = percentage >= 50 ? 'PASS' : 'FAIL';
+                            }
+                            
+                            html += `
+                                <div class="student-card ${!hasResults ? 'student-no-results' : ''}">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-5">
+                                            <h6 class="mb-1 fw-bold">${student.name || 'N/A'}</h6>
+                                            <small class="text-muted">Roll No: ${rollNo}</small>
+                                        </div>
+                                        <div class="col-md-4">
+                                            ${hasResults ? `
+                                                <span class="${statusClass}">${percentage}%</span>
+                                                <small class="text-muted ms-2">${obtainedMarks}/${totalMarks}</small>
+                                            ` : `
+                                                <span class="no-results-badge">No Results Yet</span>
+                                            `}
+                                        </div>
+                                        <div class="col-md-3 text-end">
+                                            <button class="btn btn-sm btn-primary" onclick="viewStudent('${rollNo}')">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary ms-1" onclick="editStudent('${rollNo}')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>`;
                         });
-                        
-                        const subjectPercentage = subjectTotalPossible > 0 ? 
-                            (subjectTotalObtained / subjectTotalPossible) * 100 : 0;
-                        
-                        totalObtained += subjectTotalObtained;
-                        totalPossible += subjectTotalPossible;
-                        
-                        if (subjectPercentage < 50) {
-                            failedSubjects.push(subjectName);
-                        }
-                    });
-                }
-                
-                const overallPercentage = totalPossible > 0 ? ((totalObtained / totalPossible) * 100).toFixed(2) : "0.00";
-                const statusColor = failedSubjects.length > 0 ? 'warning' : 'success';
-                const resultStatus = hasResults ? (failedSubjects.length > 0 ? 'Needs Improvement' : 'Excellent') : 'No Results';
-                
-                studentsHTML += `
-                    <div class="student-card fade-in" style="animation-delay: ${studentCount * 0.05}s">
-                        <div class="row align-items-center">
-                            <div class="col-md-2 text-center">
-                                <div class="bg-gradient-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                    <i class="fas fa-user-graduate fa-lg"></i>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <h5 class="mb-1">${student.name || 'N/A'}</h5>
-                                <p class="mb-1 text-muted"><i class="fas fa-id-card me-1"></i>Roll No: ${rollNo}</p>
-                                <p class="mb-0">
-                                    <i class="fas fa-chart-bar me-1"></i>
-                                    Status: <span class="badge bg-${hasResults ? statusColor : 'secondary'}">${resultStatus}</span>
-                                </p>
-                            </div>
-                            <div class="col-md-4 text-end">
-                                ${hasResults ? `
-                                    <div class="mb-2">
-                                        <span class="badge bg-${statusColor} p-2">${overallPercentage}%</span>
-                                    </div>
-                                ` : `
-                                    <div class="mb-2">
-                                        <span class="badge bg-secondary p-2">No Results</span>
-                                    </div>
-                                `}
-                                <div>
-                                    <button class="btn btn-sm btn-primary-custom" onclick="viewStudentResult('${rollNo}')">
-                                        <i class="fas fa-eye me-1"></i>View
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-primary ms-2" onclick="editStudent('${rollNo}')">
-                                        <i class="fas fa-edit me-1"></i>Edit
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            if (studentCount > 0) {
-                allResultsDisplay.innerHTML = `
-                    <div class="alert-message alert-info-custom mb-4">
-                        <i class="fas fa-users me-2"></i>Total Students: ${studentCount}
-                    </div>
-                    ${studentsHTML}
-                `;
-            } else {
-                allResultsDisplay.innerHTML = '<div class="alert-message alert-warning-custom">No students found in database.</div>';
-            }
-        }
-
-        // Search students in admin panel
-        function searchStudents() {
-            const searchTerm = searchStudent.value.trim().toLowerCase();
-            
-            if (!searchTerm) {
-                loadAllStudents();
-                return;
-            }
-            
-            allResultsDisplay.innerHTML = '<div class="alert-message alert-info-custom">Searching students...</div>';
-            
-            const studentsRef = database.ref('students');
-            
-            studentsRef.once('value')
-                .then((snapshot) => {
-                    if (!snapshot.exists()) {
-                        allResultsDisplay.innerHTML = '<div class="alert-message alert-warning-custom">No student data found.</div>';
-                        return;
-                    }
-                    
-                    const allStudents = snapshot.val();
-                    const filteredStudents = {};
-                    let foundCount = 0;
-                    
-                    Object.keys(allStudents).forEach(rollNo => {
-                        const student = allStudents[rollNo];
-                        const studentName = student.name || '';
-                        
-                        // Search by roll number or name
-                        if (rollNo.toLowerCase().includes(searchTerm) || 
-                            studentName.toLowerCase().includes(searchTerm)) {
-                            filteredStudents[rollNo] = student;
-                            foundCount++;
-                        }
-                    });
-                    
-                    if (foundCount > 0) {
-                        displayAllStudents(filteredStudents);
                     } else {
-                        allResultsDisplay.innerHTML = '<div class="alert-message alert-warning-custom">No students found matching your search.</div>';
+                        html = '<div class="alert alert-warning alert-custom">No students found in database</div>';
                     }
+                    
+                    document.getElementById('allResultsDisplay').innerHTML = html;
                 })
-                .catch((error) => {
-                    allResultsDisplay.innerHTML = `<div class="alert-message alert-danger-custom">Error searching: ${error.message}</div>`;
+                .catch(error => {
+                    console.error('Error loading students:', error);
+                    document.getElementById('allResultsDisplay').innerHTML = 
+                        '<div class="alert alert-danger alert-custom">Error loading students</div>';
                 });
         }
 
-        // View individual student result
-        function viewStudentResult(rollNumber) {
-            rollNumberInput.value = rollNumber;
-            showCheckResultSection();
-            setTimeout(() => {
-                fetchResultFromFirebase();
-            }, 100);
+        function viewStudent(rollNo) {
+            document.getElementById('rollNumber').value = rollNo;
+            showSection('checkResultSection');
+            setTimeout(fetchResult, 100);
         }
 
-        // Edit student (load into form)
-        function editStudent(rollNumber) {
-            updateRollNumber.value = rollNumber;
-            autoFillStudentName();
+        function editStudent(rollNo) {
+            document.getElementById('updateRollNumber').value = rollNo;
+            autoFillName();
+        }
+
+        function searchStudents() {
+            const searchTerm = document.getElementById('searchStudent').value.toLowerCase();
+            database.ref('students').once('value')
+                .then(snapshot => {
+                    const allStudents = snapshot.val();
+                    let html = '';
+                    let found = false;
+                    
+                    if (allStudents) {
+                        Object.keys(allStudents).forEach(rollNo => {
+                            const student = allStudents[rollNo];
+                            if (rollNo.includes(searchTerm) || (student.name && student.name.toLowerCase().includes(searchTerm))) {
+                                found = true;
+                                let totalMarks = 0, obtainedMarks = 0;
+                                let hasResults = false;
+                                
+                                if (student.subjects && Object.keys(student.subjects).length > 0) {
+                                    hasResults = true;
+                                    Object.keys(student.subjects).forEach(subject => {
+                                        Object.keys(student.subjects[subject]).forEach(testType => {
+                                            const marks = student.subjects[subject][testType];
+                                            const obtained = marks.obtained || 'A';
+                                            if (obtained !== 'A') obtainedMarks += parseFloat(obtained);
+                                            totalMarks += parseFloat(marks.total || 0);
+                                        });
+                                    });
+                                }
+                                
+                                const percentage = totalMarks > 0 ? ((obtainedMarks / totalMarks) * 100).toFixed(2) : 0;
+                                
+                                html += `
+                                    <div class="student-card ${!hasResults ? 'student-no-results' : ''}">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <h6 class="mb-1 fw-bold">${student.name || 'N/A'}</h6>
+                                                <small class="text-muted">Roll No: ${rollNo}</small>
+                                                ${hasResults ? 
+                                                    `<small class="d-block mt-1">Marks: ${obtainedMarks}/${totalMarks} (${percentage}%)</small>` : 
+                                                    `<small class="d-block mt-1 text-warning">No results available</small>`
+                                                }
+                                            </div>
+                                            <div class="col-md-4 text-end">
+                                                <button class="btn btn-sm btn-primary" onclick="viewStudent('${rollNo}')">
+                                                    View Result
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>`;
+                            }
+                        });
+                    }
+                    
+                    if (!found) {
+                        html = '<div class="alert alert-warning alert-custom">No students found matching your search</div>';
+                    }
+                    
+                    document.getElementById('allResultsDisplay').innerHTML = html;
+                });
+        }
+
+        function deleteResults() {
+            const rollNo = document.getElementById('deleteRollNumber').value.trim();
             
-            // Scroll to form
-            document.getElementById('updateRollNumber').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Delete only student results (keep student details)
-        function deleteStudentResultOnly() {
-            if (!currentUser) {
-                showMessage('deleteMessage', 'You must be logged in to delete results.', 'danger');
+            if (!rollNo.startsWith('0')) {
+                showMessage('deleteMessage', 'Please enter a valid roll number starting with 0', 'danger');
                 return;
             }
             
-            const rollNo = deleteRollNumber.value.trim();
-            
-            if (!validateDeleteRollNumber()) {
-                showMessage('deleteMessage', 'Please enter a valid roll number starting with 0.', 'danger');
-                return;
-            }
-            
-            // Confirm deletion
-            if (!confirm(`Are you sure you want to delete ONLY the result data for roll number ${rollNo}?\n\nStudent details will be preserved.`)) {
+            if (!confirm(`Are you sure you want to delete ONLY the result data for roll number ${rollNo}?\n\nStudent name will be preserved.`)) {
                 return;
             }
             
             showMessage('deleteMessage', 'Deleting student results only...', 'info');
             
-            const studentRef = database.ref('students/' + rollNo);
-            
-            studentRef.once('value')
-                .then((snapshot) => {
+            database.ref('students/' + rollNo).once('value')
+                .then(snapshot => {
                     if (!snapshot.exists()) {
-                        showMessage('deleteMessage', 'Student not found.', 'danger');
+                        showMessage('deleteMessage', 'Student not found', 'danger');
                         return;
                     }
                     
                     const studentData = snapshot.val();
-                    const studentName = studentData.name || 'Unknown';
+                    const studentName = studentData.name || '';
                     
-                    // Keep only the student name, remove all subjects/results
-                    const updates = {
-                        name: studentName,
-                        subjects: {} // Empty the subjects object
-                    };
-                    
-                    return studentRef.set(updates);
+                    // Update only the subjects to empty object, keep the name
+                    return database.ref('students/' + rollNo).update({
+                        subjects: {}
+                    });
                 })
                 .then(() => {
-                    showMessage('deleteMessage', `Results deleted successfully for ${rollNo}! Student details preserved.`, 'success');
-                    deleteRollNumber.value = '';
-                    deleteRollNumber.classList.remove('is-invalid');
+                    showMessage('deleteMessage', `Results deleted successfully for ${rollNo}! Student name preserved.`, 'success');
+                    document.getElementById('deleteRollNumber').value = '';
                     
-                    // Reload all students list
                     loadAllStudents();
                 })
-                .catch((error) => {
+                .catch(error => {
                     showMessage('deleteMessage', `Error deleting results: ${error.message}`, 'danger');
-                    console.error("Error deleting student results:", error);
+                    console.error("Error deleting results:", error);
                 });
         }
 
-        // Delete complete student (both details and results)
-        function deleteCompleteStudent() {
-            if (!currentUser) {
-                showMessage('deleteMessage', 'You must be logged in to delete students.', 'danger');
+        function deleteStudent() {
+            const rollNo = document.getElementById('deleteRollNumber').value.trim();
+            
+            if (!rollNo.startsWith('0')) {
+                showMessage('deleteMessage', 'Please enter a valid roll number starting with 0', 'danger');
                 return;
             }
             
-            const rollNo = deleteRollNumber.value.trim();
-            
-            if (!validateDeleteRollNumber()) {
-                showMessage('deleteMessage', 'Please enter a valid roll number starting with 0.', 'danger');
-                return;
-            }
-            
-            // Confirm deletion
-            if (!confirm(`WARNING: Are you sure you want to COMPLETELY delete student ${rollNo}?\n\nThis will remove ALL student data including name and results. This action cannot be undone!`)) {
+            if (!confirm(`WARNING: Are you sure you want to COMPLETELY delete student ${rollNo}?\n\nThis will remove ALL student data including name. This action cannot be undone!`)) {
                 return;
             }
             
             showMessage('deleteMessage', 'Deleting complete student record...', 'info');
             
-            const studentRef = database.ref('students/' + rollNo);
-            
-            studentRef.remove()
+            database.ref('students/' + rollNo).remove()
                 .then(() => {
                     showMessage('deleteMessage', `Student ${rollNo} completely deleted!`, 'success');
-                    deleteRollNumber.value = '';
-                    deleteRollNumber.classList.remove('is-invalid');
+                    document.getElementById('deleteRollNumber').value = '';
                     
-                    // Reload all students list
                     loadAllStudents();
                 })
-                .catch((error) => {
+                .catch(error => {
                     showMessage('deleteMessage', `Error deleting student: ${error.message}`, 'danger');
-                    console.error("Error deleting student:", error);
                 });
         }
 
-        // Export all student data to Excel
-        function exportToExcelFromFirebase() {
-            const exportMessage = document.getElementById('exportMessage');
+        function exportToExcel() {
+            showMessage('exportMessage', 'Preparing Excel file...', 'info');
             
-            if (!currentUser) {
-                showMessage('exportMessage', 'You must be logged in to export data.', 'danger');
-                return;
-            }
-            
-            showMessage('exportMessage', 'Fetching data from Firebase...', 'info');
-            
-            const studentsRef = database.ref('students');
-            
-            studentsRef.once('value')
-                .then((snapshot) => {
-                    if (!snapshot.exists()) {
-                        showMessage('exportMessage', 'No student data found in database.', 'warning');
-                        return;
-                    }
-                    
+            database.ref('students').once('value')
+                .then(snapshot => {
                     const allStudents = snapshot.val();
-                    showMessage('exportMessage', 'Preparing Excel file...', 'info');
-                    
-                    // Create a workbook
                     const wb = XLSX.utils.book_new();
                     
-                    // Add each student as a separate sheet
-                    Object.keys(allStudents).forEach(rollNo => {
-                        const student = allStudents[rollNo];
-                        
-                        // Prepare data for the sheet
-                        const sheetData = [
-                            [`Student Result: ${student.name || 'Unknown'} (Roll No: ${rollNo})`],
-                            [],
-                            ['Subject', 'Test Type', 'Total Marks', 'Obtained Marks', 'Percentage', 'Status']
-                        ];
-                        
-                        let studentTotalObtained = 0;
-                        let studentTotalPossible = 0;
-                        const failedSubjects = [];
-                        
-                        // Add subject data
-                        if (student.subjects) {
-                            Object.keys(student.subjects).forEach(subjectName => {
-                                const subject = student.subjects[subjectName];
-                                
-                                Object.keys(subject).forEach(testType => {
-                                    // Convert underscores back to spaces for display
-                                    const displayTestType = testType.replace(/_/g, ' ');
-                                    const test = subject[testType];
-                                    const obtained = test.obtained || 'A';
-                                    const total = test.total || 0;
-                                    const isAbsent = obtained === 'A' || obtained === 'a';
-                                    const obtainedNum = isAbsent ? 0 : parseFloat(obtained);
-                                    const percentage = total > 0 ? (obtainedNum / total) * 100 : 0;
-                                    const status = percentage >= 50 ? 'PASS' : 'FAIL';
-                                    
-                                    if (testType === 'FINAL' || displayTestType.toUpperCase() === 'FINAL') {
-                                        if (percentage < 50) {
-                                            failedSubjects.push(subjectName);
-                                        }
-                                        if (!isAbsent) {
-                                            studentTotalObtained += obtainedNum;
-                                        }
-                                        studentTotalPossible += total;
-                                    }
-                                    
-                                    sheetData.push([
-                                        subjectName,
-                                        displayTestType,
-                                        total,
-                                        isAbsent ? 'A (Absent)' : obtained,
-                                        total > 0 ? percentage.toFixed(2) + '%' : 'N/A',
-                                        status
-                                    ]);
+                    if (allStudents) {
+                        Object.keys(allStudents).forEach(rollNo => {
+                            const student = allStudents[rollNo];
+                            const sheetData = [
+                                [`Student: ${student.name || 'N/A'} (${rollNo})`],
+                                [],
+                                ['Subject', 'Test Type', 'Total Marks', 'Obtained Marks', 'Status']
+                            ];
+                            
+                            if (student.subjects && Object.keys(student.subjects).length > 0) {
+                                Object.keys(student.subjects).forEach(subject => {
+                                    Object.keys(student.subjects[subject]).forEach(testType => {
+                                        const marks = student.subjects[subject][testType];
+                                        const obtained = marks.obtained || 'A';
+                                        const total = marks.total || 0;
+                                        const displayTestType = testType.replace(/_/g, ' ');
+                                        const status = obtained === 'A' ? 'ABSENT' : 
+                                            (parseFloat(obtained) / total >= 0.5 ? 'PASS' : 'FAIL');
+                                        
+                                        sheetData.push([
+                                            subject,
+                                            displayTestType,
+                                            total,
+                                            obtained,
+                                            status
+                                        ]);
+                                    });
                                 });
-                            });
-                        }
-                        
-                        const studentPercentage = studentTotalPossible > 0 ? 
-                            ((studentTotalObtained / studentTotalPossible) * 100).toFixed(2) + '%' : '0%';
-                        
-                        // Add summary
-                        sheetData.push([]);
-                        sheetData.push(['TOTAL', '', studentTotalPossible, studentTotalObtained, studentPercentage, failedSubjects.length === 0 ? 'ALL PASS' : 'FAIL']);
-                        
-                        if (failedSubjects.length > 0) {
-                            sheetData.push(['FAILED SUBJECTS', '', '', '', '', failedSubjects.join(', ')]);
-                        }
-                        
-                        // Create worksheet
-                        const ws = XLSX.utils.aoa_to_sheet(sheetData);
-                        
-                        // Add worksheet to workbook
-                        const sheetName = rollNo.substring(0, 31);
-                        XLSX.utils.book_append_sheet(wb, ws, sheetName);
-                    });
+                            } else {
+                                sheetData.push(['', 'No results available', '', '', '']);
+                            }
+                            
+                            const ws = XLSX.utils.aoa_to_sheet(sheetData);
+                            XLSX.utils.book_append_sheet(wb, ws, rollNo.substring(0, 31));
+                        });
+                    }
                     
-                    // Generate and download the Excel file
                     XLSX.writeFile(wb, 'Student_Results.xlsx');
-                    
                     showMessage('exportMessage', 'Excel file exported successfully!', 'success');
                 })
-                .catch((error) => {
+                .catch(error => {
                     showMessage('exportMessage', `Error exporting data: ${error.message}`, 'danger');
-                    console.error("Error exporting data:", error);
                 });
+        }
+
+        // Utility Functions
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            const alertClass = type === 'success' ? 'alert-success' : 
+                             type === 'danger' ? 'alert-danger' : 
+                             type === 'warning' ? 'alert-warning' : 'alert-info';
+            element.innerHTML = `<div class="alert ${alertClass} alert-custom">${message}</div>`;
+            if (type === 'success') {
+                setTimeout(() => element.innerHTML = '', 3000);
+            }
         }
     </script>
 </body>
