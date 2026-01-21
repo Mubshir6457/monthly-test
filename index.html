@@ -66,7 +66,6 @@
             color: white;
             font-weight: 600;
             transition: all 0.3s;
-            width: 100%;
         }
         
         .btn-primary-custom:hover {
@@ -237,10 +236,6 @@
                 display: block;
             }
             
-            .btn-primary-custom {
-                width: auto;
-            }
-            
             .section-card {
                 padding: 30px;
             }
@@ -266,10 +261,6 @@
             color: white;
             padding: 15px 0;
             margin-top: 30px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            z-index: 1000;
         }
         
         .table-container {
@@ -312,6 +303,9 @@
             padding: 5px 10px;
             border-radius: 8px;
             transition: all 0.3s;
+            flex: 1;
+            margin: 0 5px;
+            text-align: center;
         }
         
         .mobile-nav-item.active {
@@ -332,6 +326,7 @@
         .mobile-btn {
             padding: 12px;
             font-size: 1rem;
+            width: 100%;
         }
         
         .mobile-input {
@@ -339,26 +334,51 @@
             font-size: 1rem;
         }
         
-        /* Admin panel warning for mobile */
-        .admin-warning {
-            display: none;
-            background: var(--warning);
+        /* Mobile accordion for admin panel */
+        .admin-accordion {
+            margin-bottom: 10px;
+        }
+        
+        .admin-accordion-header {
+            background: var(--primary);
             color: white;
             padding: 15px;
             border-radius: 8px;
-            text-align: center;
-            margin: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .admin-accordion-content {
+            display: none;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: -5px;
+            margin-bottom: 10px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .admin-accordion.active .admin-accordion-content {
+            display: block;
+        }
+        
+        /* Admin panel mobile specific */
+        .admin-section-card {
+            margin-bottom: 15px;
+        }
+        
+        .admin-section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 8px;
         }
         
         @media (max-width: 767px) {
-            .admin-warning {
-                display: block;
-            }
-            
-            #adminSection {
-                display: none !important;
-            }
-            
             .navbar {
                 padding: 10px 0;
             }
@@ -374,6 +394,10 @@
             
             body {
                 padding-bottom: 100px;
+            }
+            
+            .btn-primary-custom {
+                width: 100%;
             }
         }
         
@@ -428,20 +452,13 @@
             <i class="fas fa-search"></i>
             <span>Check Result</span>
         </a>
-        <a href="#" class="mobile-nav-item desktop-only" id="mobileAdminLink">
+        <a href="#" class="mobile-nav-item" id="mobileAdminLink">
             <i class="fas fa-user-shield"></i>
             <span>Admin</span>
         </a>
     </div>
 
     <div class="container mt-3 mb-5" id="contentArea">
-        <!-- Admin Warning for Mobile -->
-        <div class="admin-warning mobile-only">
-            <i class="fas fa-exclamation-triangle fa-2x mb-3"></i>
-            <h5>Admin Panel Not Available</h5>
-            <p>Please use a desktop computer to access the admin panel.</p>
-        </div>
-
         <!-- Home Section -->
         <div id="homeSection">
             <div class="section-card text-center">
@@ -522,92 +539,207 @@
             </div>
         </div>
 
-        <!-- Admin Panel (Desktop Only) -->
+        <!-- Admin Panel (Mobile Optimized) -->
         <div id="adminSection" style="display:none;">
             <h2 class="section-title mb-4"><i class="fas fa-user-shield me-2"></i>Admin Panel</h2>
             
-            <!-- Add Student -->
-            <div class="section-card mb-4">
-                <h5 class="mb-3"><i class="fas fa-user-plus me-2"></i>Add New Student</h5>
-                <div class="row g-2">
-                    <div class="col-md-3 col-12">
-                        <input type="text" class="form-control mobile-input" id="addRollNumber" placeholder="Roll Number (0283)">
+            <!-- Mobile Accordion for Admin Features -->
+            <div class="mobile-only">
+                <!-- Add Student Accordion -->
+                <div class="admin-accordion">
+                    <div class="admin-accordion-header" onclick="toggleAccordion(this)">
+                        <span><i class="fas fa-user-plus me-2"></i>Add New Student</span>
+                        <i class="fas fa-chevron-down"></i>
                     </div>
-                    <div class="col-md-6 col-12">
-                        <input type="text" class="form-control mobile-input" id="addStudentName" placeholder="Full Name">
-                    </div>
-                    <div class="col-md-3 col-12">
-                        <button class="btn btn-primary-custom w-100 mobile-btn" id="addStudentBtn">Add Student</button>
+                    <div class="admin-accordion-content">
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <input type="text" class="form-control mobile-input mb-2" id="mobileAddRollNumber" placeholder="Roll Number (0283)">
+                            </div>
+                            <div class="col-12">
+                                <input type="text" class="form-control mobile-input mb-2" id="mobileAddStudentName" placeholder="Full Name">
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-primary-custom w-100 mobile-btn" onclick="addStudentMobile()">Add Student</button>
+                            </div>
+                        </div>
+                        <div id="mobileAddStudentMessage" class="mt-2"></div>
                     </div>
                 </div>
-                <div id="addStudentMessage" class="mt-3"></div>
+
+                <!-- Add/Update Marks Accordion -->
+                <div class="admin-accordion">
+                    <div class="admin-accordion-header" onclick="toggleAccordion(this)">
+                        <span><i class="fas fa-edit me-2"></i>Add/Update Marks</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="admin-accordion-content">
+                        <div class="row g-2 mb-2">
+                            <div class="col-12">
+                                <input type="text" class="form-control mobile-input" id="mobileUpdateRollNumber" placeholder="Roll Number" onchange="autoFillNameMobile()">
+                            </div>
+                            <div class="col-12">
+                                <input type="text" class="form-control mobile-input" id="mobileStudentName" placeholder="Student Name" readonly>
+                            </div>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <input type="text" class="form-control mobile-input" id="mobileSubject" placeholder="Subject">
+                            </div>
+                            <div class="col-6">
+                                <input type="text" class="form-control mobile-input" id="mobileTestType" placeholder="T1/T2/Final" value="Final">
+                            </div>
+                            <div class="col-6">
+                                <input type="number" class="form-control mobile-input" id="mobileTotalMarks" value="100">
+                            </div>
+                            <div class="col-12">
+                                <input type="text" class="form-control mobile-input" id="mobileObtainedMarks" placeholder="Marks or 'A'">
+                            </div>
+                            <div class="col-12">
+                                <button class="btn btn-primary-custom w-100 mobile-btn" onclick="addMarksMobile()">Save Marks</button>
+                            </div>
+                        </div>
+                        <div id="mobileUpdateMarksMessage" class="mt-2"></div>
+                    </div>
+                </div>
+
+                <!-- Search Students Accordion -->
+                <div class="admin-accordion">
+                    <div class="admin-accordion-header" onclick="toggleAccordion(this)">
+                        <span><i class="fas fa-search me-2"></i>Search Students</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="admin-accordion-content">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control mobile-input" id="mobileSearchStudent" placeholder="Search by roll number or name">
+                            <button class="btn btn-primary-custom mobile-btn" onclick="searchStudentsMobile()">Search</button>
+                        </div>
+                        <div id="mobileAllResultsDisplay"></div>
+                    </div>
+                </div>
+
+                <!-- Delete Options Accordion -->
+                <div class="admin-accordion">
+                    <div class="admin-accordion-header" onclick="toggleAccordion(this)">
+                        <span><i class="fas fa-trash me-2"></i>Delete Options</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="admin-accordion-content">
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <input type="text" class="form-control mobile-input" id="mobileDeleteRollNumber" placeholder="Enter Roll Number">
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-warning w-100 mobile-btn" onclick="deleteResultsMobile()">Delete Results Only</button>
+                            </div>
+                            <div class="col-6">
+                                <button class="btn btn-danger w-100 mobile-btn" onclick="deleteStudentMobile()">Delete Complete Student</button>
+                            </div>
+                        </div>
+                        <div id="mobileDeleteMessage" class="mt-2"></div>
+                    </div>
+                </div>
+
+                <!-- Export Data Accordion -->
+                <div class="admin-accordion">
+                    <div class="admin-accordion-header" onclick="toggleAccordion(this)">
+                        <span><i class="fas fa-file-excel me-2"></i>Export Data</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="admin-accordion-content">
+                        <button class="btn btn-success w-100 py-3 mobile-btn" onclick="exportToExcelMobile()">
+                            <i class="fas fa-file-excel me-2"></i>Export All Results to Excel
+                        </button>
+                        <div id="mobileExportMessage" class="mt-2"></div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Add/Update Marks -->
-            <div class="section-card mb-4">
-                <h5 class="mb-3"><i class="fas fa-edit me-2"></i>Add/Update Marks</h5>
-                <div class="row g-2 mb-3">
-                    <div class="col-md-4 col-12">
-                        <input type="text" class="form-control mobile-input" id="updateRollNumber" placeholder="Roll Number">
+            <!-- Desktop Admin Panel (Original) -->
+            <div class="desktop-only">
+                <!-- Add Student -->
+                <div class="section-card mb-4">
+                    <h5 class="mb-3"><i class="fas fa-user-plus me-2"></i>Add New Student</h5>
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="addRollNumber" placeholder="Roll Number (0283)">
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" id="addStudentName" placeholder="Full Name">
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary-custom w-100" id="addStudentBtn">Add Student</button>
+                        </div>
                     </div>
-                    <div class="col-md-8 col-12">
-                        <input type="text" class="form-control mobile-input" id="studentName" placeholder="Student Name" readonly>
-                    </div>
+                    <div id="addStudentMessage" class="mt-3"></div>
                 </div>
-                <div class="row g-2">
-                    <div class="col-md-3 col-12">
-                        <input type="text" class="form-control mobile-input" id="subject" placeholder="Subject">
-                    </div>
-                    <div class="col-md-2 col-6">
-                        <input type="text" class="form-control mobile-input" id="testType" placeholder="T1/T2/Final" value="Final">
-                    </div>
-                    <div class="col-md-2 col-6">
-                        <input type="number" class="form-control mobile-input" id="totalMarks" value="100">
-                    </div>
-                    <div class="col-md-3 col-12">
-                        <input type="text" class="form-control mobile-input" id="obtainedMarks" placeholder="Marks or 'A'">
-                    </div>
-                    <div class="col-md-2 col-12">
-                        <button class="btn btn-primary-custom w-100 mobile-btn" id="addMarksBtn">Save</button>
-                    </div>
-                </div>
-                <div id="updateMarksMessage" class="mt-3"></div>
-            </div>
 
-            <!-- All Students -->
-            <div class="section-card mb-4">
-                <h5 class="mb-3"><i class="fas fa-list me-2"></i>All Students</h5>
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control mobile-input" id="searchStudent" placeholder="Search by roll number or name">
-                    <button class="btn btn-primary-custom mobile-btn" id="searchBtn">Search</button>
+                <!-- Add/Update Marks -->
+                <div class="section-card mb-4">
+                    <h5 class="mb-3"><i class="fas fa-edit me-2"></i>Add/Update Marks</h5>
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="updateRollNumber" placeholder="Roll Number">
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="studentName" placeholder="Student Name" readonly>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="subject" placeholder="Subject">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="text" class="form-control" id="testType" placeholder="T1/T2/Final" value="Final">
+                        </div>
+                        <div class="col-md-2">
+                            <input type="number" class="form-control" id="totalMarks" value="100">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" class="form-control" id="obtainedMarks" placeholder="Marks or 'A'">
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary-custom w-100" id="addMarksBtn">Save</button>
+                        </div>
+                    </div>
+                    <div id="updateMarksMessage" class="mt-3"></div>
                 </div>
-                <div id="allResultsDisplay"></div>
-            </div>
 
-            <!-- Delete Options -->
-            <div class="section-card mb-4">
-                <h5 class="mb-3"><i class="fas fa-trash me-2"></i>Delete Options</h5>
-                <div class="row g-2">
-                    <div class="col-md-4 col-12">
-                        <input type="text" class="form-control mobile-input" id="deleteRollNumber" placeholder="Enter Roll Number">
+                <!-- All Students -->
+                <div class="section-card mb-4">
+                    <h5 class="mb-3"><i class="fas fa-list me-2"></i>All Students</h5>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="searchStudent" placeholder="Search by roll number or name">
+                        <button class="btn btn-primary-custom" id="searchBtn">Search</button>
                     </div>
-                    <div class="col-md-4 col-6">
-                        <button class="btn btn-warning w-100 mobile-btn" id="deleteResultBtn">Delete Results Only</button>
-                    </div>
-                    <div class="col-md-4 col-6">
-                        <button class="btn btn-danger w-100 mobile-btn" id="deleteStudentBtn">Delete Complete Student</button>
-                    </div>
+                    <div id="allResultsDisplay"></div>
                 </div>
-                <div id="deleteMessage" class="mt-3"></div>
-            </div>
 
-            <!-- Export -->
-            <div class="section-card">
-                <h5 class="mb-3"><i class="fas fa-file-excel me-2"></i>Export Data</h5>
-                <button class="btn btn-success w-100 py-3 mobile-btn" id="exportExcelBtn">
-                    <i class="fas fa-file-excel me-2"></i>Export All Results to Excel
-                </button>
-                <div id="exportMessage" class="mt-3"></div>
+                <!-- Delete Options -->
+                <div class="section-card mb-4">
+                    <h5 class="mb-3"><i class="fas fa-trash me-2"></i>Delete Options</h5>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" id="deleteRollNumber" placeholder="Enter Roll Number">
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-warning w-100" id="deleteResultBtn">Delete Results Only</button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-danger w-100" id="deleteStudentBtn">Delete Complete Student</button>
+                        </div>
+                    </div>
+                    <div id="deleteMessage" class="mt-3"></div>
+                </div>
+
+                <!-- Export -->
+                <div class="section-card">
+                    <h5 class="mb-3"><i class="fas fa-file-excel me-2"></i>Export Data</h5>
+                    <button class="btn btn-success w-100 py-3" id="exportExcelBtn">
+                        <i class="fas fa-file-excel me-2"></i>Export All Results to Excel
+                    </button>
+                    <div id="exportMessage" class="mt-3"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -653,10 +785,6 @@
             document.getElementById('homeLink').addEventListener('click', () => showSection('homeSection'));
             document.getElementById('checkResultLink').addEventListener('click', () => showSection('checkResultSection'));
             document.getElementById('adminLink').addEventListener('click', () => {
-                if (isMobile) {
-                    showMessage('authMessage', 'Admin panel is not available on mobile devices.', 'warning');
-                    return;
-                }
                 if (currentUser) {
                     showSection('adminSection');
                     loadAllStudents();
@@ -682,14 +810,10 @@
             
             document.getElementById('mobileAdminLink').addEventListener('click', (e) => {
                 e.preventDefault();
-                if (isMobile) {
-                    alert('Admin panel is not available on mobile devices. Please use a desktop computer.');
-                    return;
-                }
                 setMobileNavActive('mobileAdminLink');
                 if (currentUser) {
                     showSection('adminSection');
-                    loadAllStudents();
+                    loadAllStudentsMobile();
                 } else {
                     showSection('authSection');
                 }
@@ -701,7 +825,7 @@
             // Result Functions
             document.getElementById('fetchResultBtn').addEventListener('click', fetchResult);
 
-            // Admin Functions
+            // Desktop Admin Functions
             document.getElementById('addStudentBtn').addEventListener('click', addStudent);
             document.getElementById('addMarksBtn').addEventListener('click', addMarks);
             document.getElementById('exportExcelBtn').addEventListener('click', exportToExcel);
@@ -709,7 +833,7 @@
             document.getElementById('deleteStudentBtn').addEventListener('click', deleteStudent);
             document.getElementById('searchBtn').addEventListener('click', searchStudents);
             
-            // Auto-fill student name
+            // Auto-fill student name for desktop
             document.getElementById('updateRollNumber').addEventListener('change', autoFillName);
 
             // Auth state listener
@@ -726,10 +850,19 @@
         // Check if mobile
         function checkMobile() {
             isMobile = window.innerWidth <= 767;
-            if (isMobile && document.getElementById('adminSection').style.display === 'block') {
-                showSection('checkResultSection');
-                setMobileNavActive('mobileCheckResultLink');
-                showMessage('authMessage', 'Switched to mobile view. Admin panel is not available.', 'info');
+        }
+
+        // Mobile Accordion Toggle
+        function toggleAccordion(element) {
+            const accordion = element.parentElement;
+            accordion.classList.toggle('active');
+            const icon = element.querySelector('.fa-chevron-down');
+            if (accordion.classList.contains('active')) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            } else {
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
             }
         }
 
@@ -760,13 +893,6 @@
                               sectionId === 'adminSection' ? 'adminLink' : null;
             if (activeLink) document.getElementById(activeLink).classList.add('active');
             
-            // Hide admin section on mobile
-            if (isMobile && sectionId === 'adminSection') {
-                showSection('checkResultSection');
-                alert('Admin panel is not available on mobile devices. Please use a desktop computer.');
-                return;
-            }
-            
             // Scroll to top on mobile
             if (isMobile) {
                 window.scrollTo(0, 0);
@@ -784,13 +910,11 @@
                 .then(() => {
                     showMessage('authMessage', 'Login successful!', 'success');
                     setTimeout(() => {
-                        if (!isMobile) {
-                            showSection('adminSection');
-                            loadAllStudents();
+                        showSection('adminSection');
+                        if (isMobile) {
+                            loadAllStudentsMobile();
                         } else {
-                            showSection('checkResultSection');
-                            setMobileNavActive('mobileCheckResultLink');
-                            alert('Admin panel is not available on mobile. Redirecting to result check.');
+                            loadAllStudents();
                         }
                     }, 1000);
                 })
@@ -809,7 +933,7 @@
             });
         }
 
-        // Result Functions
+        // Result Functions (Same as before)
         function fetchResult() {
             const rollNumber = document.getElementById('rollNumber').value.trim();
             
@@ -1172,13 +1296,8 @@
             doc.save(`Result_${rollNumber}.pdf`);
         }
 
-        // Admin Functions
+        // Desktop Admin Functions (Keep as before)
         function addStudent() {
-            if (isMobile) {
-                alert('This feature is not available on mobile devices.');
-                return;
-            }
-            
             const rollNo = document.getElementById('addRollNumber').value.trim();
             const name = document.getElementById('addStudentName').value.trim();
             
@@ -1201,11 +1320,6 @@
         }
 
         function addMarks() {
-            if (isMobile) {
-                alert('This feature is not available on mobile devices.');
-                return;
-            }
-            
             const rollNo = document.getElementById('updateRollNumber').value.trim();
             const subject = document.getElementById('subject').value.trim();
             const testType = document.getElementById('testType').value.toUpperCase().replace(/\s+/g, '_');
@@ -1248,8 +1362,6 @@
         }
 
         function autoFillName() {
-            if (isMobile) return;
-            
             const rollNo = document.getElementById('updateRollNumber').value.trim();
             if (rollNo.startsWith('0')) {
                 database.ref('students/' + rollNo).once('value')
@@ -1264,8 +1376,6 @@
         }
 
         function loadAllStudents() {
-            if (isMobile) return;
-            
             database.ref('students').once('value')
                 .then(snapshot => {
                     const allStudents = snapshot.val();
@@ -1337,6 +1447,146 @@
                 });
         }
 
+        // Mobile Admin Functions
+        function addStudentMobile() {
+            const rollNo = document.getElementById('mobileAddRollNumber').value.trim();
+            const name = document.getElementById('mobileAddStudentName').value.trim();
+            
+            if (!rollNo.startsWith('0') || !name) {
+                showMessage('mobileAddStudentMessage', 'Invalid data. Roll number must start with 0.', 'danger');
+                return;
+            }
+            
+            database.ref('students/' + rollNo).set({
+                name: name,
+                subjects: {}
+            }).then(() => {
+                showMessage('mobileAddStudentMessage', 'Student added successfully', 'success');
+                document.getElementById('mobileAddRollNumber').value = '';
+                document.getElementById('mobileAddStudentName').value = '';
+                loadAllStudentsMobile();
+            }).catch(error => {
+                showMessage('mobileAddStudentMessage', `Error: ${error.message}`, 'danger');
+            });
+        }
+
+        function addMarksMobile() {
+            const rollNo = document.getElementById('mobileUpdateRollNumber').value.trim();
+            const subject = document.getElementById('mobileSubject').value.trim();
+            const testType = document.getElementById('mobileTestType').value.toUpperCase().replace(/\s+/g, '_');
+            const totalMarks = document.getElementById('mobileTotalMarks').value;
+            const obtainedMarks = document.getElementById('mobileObtainedMarks').value;
+            
+            if (!rollNo.startsWith('0') || !subject || !testType || !totalMarks) {
+                showMessage('mobileUpdateMarksMessage', 'Please fill all fields correctly. Roll number must start with 0.', 'danger');
+                return;
+            }
+            
+            database.ref('students/' + rollNo).once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        showMessage('mobileUpdateMarksMessage', 'Student not found. Please add student first.', 'danger');
+                        return;
+                    }
+                    
+                    const studentData = snapshot.val();
+                    const updates = {
+                        name: studentData.name,
+                        subjects: studentData.subjects || {}
+                    };
+                    
+                    if (!updates.subjects[subject]) updates.subjects[subject] = {};
+                    updates.subjects[subject][testType] = {
+                        total: parseFloat(totalMarks),
+                        obtained: obtainedMarks.toUpperCase()
+                    };
+                    
+                    return database.ref('students/' + rollNo).set(updates);
+                })
+                .then(() => {
+                    showMessage('mobileUpdateMarksMessage', 'Marks saved successfully', 'success');
+                    loadAllStudentsMobile();
+                })
+                .catch(error => {
+                    showMessage('mobileUpdateMarksMessage', `Error: ${error.message}`, 'danger');
+                });
+        }
+
+        function autoFillNameMobile() {
+            const rollNo = document.getElementById('mobileUpdateRollNumber').value.trim();
+            if (rollNo.startsWith('0')) {
+                database.ref('students/' + rollNo).once('value')
+                    .then(snapshot => {
+                        if (snapshot.exists()) {
+                            document.getElementById('mobileStudentName').value = snapshot.val().name || '';
+                        } else {
+                            document.getElementById('mobileStudentName').value = '';
+                        }
+                    });
+            }
+        }
+
+        function loadAllStudentsMobile() {
+            database.ref('students').once('value')
+                .then(snapshot => {
+                    const allStudents = snapshot.val();
+                    let html = '';
+                    
+                    if (allStudents) {
+                        Object.keys(allStudents).forEach(rollNo => {
+                            const student = allStudents[rollNo];
+                            let totalMarks = 0, obtainedMarks = 0;
+                            let hasResults = false;
+                            
+                            if (student.subjects && Object.keys(student.subjects).length > 0) {
+                                hasResults = true;
+                                Object.keys(student.subjects).forEach(subject => {
+                                    Object.keys(student.subjects[subject]).forEach(testType => {
+                                        const marks = student.subjects[subject][testType];
+                                        const obtained = marks.obtained || 'A';
+                                        if (obtained !== 'A') obtainedMarks += parseFloat(obtained);
+                                        totalMarks += parseFloat(marks.total || 0);
+                                    });
+                                });
+                            }
+                            
+                            const percentage = totalMarks > 0 ? ((obtainedMarks / totalMarks) * 100).toFixed(2) : 0;
+                            
+                            html += `
+                                <div class="student-card ${!hasResults ? 'student-no-results' : ''} mb-2">
+                                    <div class="row align-items-center">
+                                        <div class="col-8">
+                                            <h6 class="mb-1 fw-bold">${student.name || 'N/A'}</h6>
+                                            <small class="text-muted">Roll No: ${rollNo}</small>
+                                            ${hasResults ? 
+                                                `<small class="d-block mt-1">Marks: ${obtainedMarks}/${totalMarks} (${percentage}%)</small>` : 
+                                                `<small class="d-block mt-1 text-warning">No results available</small>`
+                                            }
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <button class="btn btn-sm btn-primary" onclick="viewStudentMobile('${rollNo}')">
+                                                <i class="fas fa-eye"></i> View
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary ms-1" onclick="editStudentMobile('${rollNo}')">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        });
+                    } else {
+                        html = '<div class="alert alert-warning alert-custom">No students found in database</div>';
+                    }
+                    
+                    document.getElementById('mobileAllResultsDisplay').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading students:', error);
+                    document.getElementById('mobileAllResultsDisplay').innerHTML = 
+                        '<div class="alert alert-danger alert-custom">Error loading students</div>';
+                });
+        }
+
         function viewStudent(rollNo) {
             document.getElementById('rollNumber').value = rollNo;
             showSection('checkResultSection');
@@ -1346,21 +1596,44 @@
             setTimeout(fetchResult, 100);
         }
 
+        function viewStudentMobile(rollNo) {
+            document.getElementById('rollNumber').value = rollNo;
+            showSection('checkResultSection');
+            setMobileNavActive('mobileCheckResultLink');
+            setTimeout(fetchResult, 100);
+        }
+
         function editStudent(rollNo) {
-            if (isMobile) {
-                alert('Editing is not available on mobile devices.');
-                return;
-            }
             document.getElementById('updateRollNumber').value = rollNo;
+            document.getElementById('mobileUpdateRollNumber').value = rollNo;
             autoFillName();
+            autoFillNameMobile();
+            if (isMobile) {
+                // Scroll to edit section and open accordion
+                const editAccordion = document.querySelectorAll('.admin-accordion')[1];
+                editAccordion.classList.add('active');
+                editAccordion.querySelector('.fa-chevron-down').classList.remove('fa-chevron-down');
+                editAccordion.querySelector('.fa-chevron-down').classList.add('fa-chevron-up');
+                editAccordion.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function editStudentMobile(rollNo) {
+            document.getElementById('updateRollNumber').value = rollNo;
+            document.getElementById('mobileUpdateRollNumber').value = rollNo;
+            autoFillNameMobile();
+            // Scroll to edit section and open accordion
+            const editAccordion = document.querySelectorAll('.admin-accordion')[1];
+            editAccordion.classList.add('active');
+            const icon = editAccordion.querySelector('.fa-chevron-down');
+            if (icon) {
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+            editAccordion.scrollIntoView({ behavior: 'smooth' });
         }
 
         function searchStudents() {
-            if (isMobile) {
-                alert('This feature is not available on mobile devices.');
-                return;
-            }
-            
             const searchTerm = document.getElementById('searchStudent').value.toLowerCase();
             database.ref('students').once('value')
                 .then(snapshot => {
@@ -1420,12 +1693,67 @@
                 });
         }
 
+        function searchStudentsMobile() {
+            const searchTerm = document.getElementById('mobileSearchStudent').value.toLowerCase();
+            database.ref('students').once('value')
+                .then(snapshot => {
+                    const allStudents = snapshot.val();
+                    let html = '';
+                    let found = false;
+                    
+                    if (allStudents) {
+                        Object.keys(allStudents).forEach(rollNo => {
+                            const student = allStudents[rollNo];
+                            if (rollNo.includes(searchTerm) || (student.name && student.name.toLowerCase().includes(searchTerm))) {
+                                found = true;
+                                let totalMarks = 0, obtainedMarks = 0;
+                                let hasResults = false;
+                                
+                                if (student.subjects && Object.keys(student.subjects).length > 0) {
+                                    hasResults = true;
+                                    Object.keys(student.subjects).forEach(subject => {
+                                        Object.keys(student.subjects[subject]).forEach(testType => {
+                                            const marks = student.subjects[subject][testType];
+                                            const obtained = marks.obtained || 'A';
+                                            if (obtained !== 'A') obtainedMarks += parseFloat(obtained);
+                                            totalMarks += parseFloat(marks.total || 0);
+                                        });
+                                    });
+                                }
+                                
+                                const percentage = totalMarks > 0 ? ((obtainedMarks / totalMarks) * 100).toFixed(2) : 0;
+                                
+                                html += `
+                                    <div class="student-card ${!hasResults ? 'student-no-results' : ''} mb-2">
+                                        <div class="row align-items-center">
+                                            <div class="col-8">
+                                                <h6 class="mb-1 fw-bold">${student.name || 'N/A'}</h6>
+                                                <small class="text-muted">Roll No: ${rollNo}</small>
+                                                ${hasResults ? 
+                                                    `<small class="d-block mt-1">Marks: ${obtainedMarks}/${totalMarks} (${percentage}%)</small>` : 
+                                                    `<small class="d-block mt-1 text-warning">No results available</small>`
+                                                }
+                                            </div>
+                                            <div class="col-4 text-end">
+                                                <button class="btn btn-sm btn-primary" onclick="viewStudentMobile('${rollNo}')">
+                                                    View
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>`;
+                            }
+                        });
+                    }
+                    
+                    if (!found) {
+                        html = '<div class="alert alert-warning alert-custom">No students found matching your search</div>';
+                    }
+                    
+                    document.getElementById('mobileAllResultsDisplay').innerHTML = html;
+                });
+        }
+
         function deleteResults() {
-            if (isMobile) {
-                alert('This feature is not available on mobile devices.');
-                return;
-            }
-            
             const rollNo = document.getElementById('deleteRollNumber').value.trim();
             
             if (!rollNo.startsWith('0')) {
@@ -1447,7 +1775,6 @@
                     }
                     
                     const studentData = snapshot.val();
-                    const studentName = studentData.name || '';
                     
                     return database.ref('students/' + rollNo).update({
                         subjects: {}
@@ -1456,21 +1783,56 @@
                 .then(() => {
                     showMessage('deleteMessage', `Results deleted successfully for ${rollNo}! Student name preserved.`, 'success');
                     document.getElementById('deleteRollNumber').value = '';
+                    document.getElementById('mobileDeleteRollNumber').value = '';
                     
-                    loadAllStudents();
+                    if (isMobile) {
+                        loadAllStudentsMobile();
+                    } else {
+                        loadAllStudents();
+                    }
                 })
                 .catch(error => {
                     showMessage('deleteMessage', `Error deleting results: ${error.message}`, 'danger');
-                    console.error("Error deleting results:", error);
+                });
+        }
+
+        function deleteResultsMobile() {
+            const rollNo = document.getElementById('mobileDeleteRollNumber').value.trim();
+            
+            if (!rollNo.startsWith('0')) {
+                showMessage('mobileDeleteMessage', 'Please enter a valid roll number starting with 0', 'danger');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete ONLY the result data for roll number ${rollNo}?\n\nStudent name will be preserved.`)) {
+                return;
+            }
+            
+            showMessage('mobileDeleteMessage', 'Deleting student results only...', 'info');
+            
+            database.ref('students/' + rollNo).once('value')
+                .then(snapshot => {
+                    if (!snapshot.exists()) {
+                        showMessage('mobileDeleteMessage', 'Student not found', 'danger');
+                        return;
+                    }
+                    
+                    return database.ref('students/' + rollNo).update({
+                        subjects: {}
+                    });
+                })
+                .then(() => {
+                    showMessage('mobileDeleteMessage', `Results deleted successfully for ${rollNo}! Student name preserved.`, 'success');
+                    document.getElementById('deleteRollNumber').value = '';
+                    document.getElementById('mobileDeleteRollNumber').value = '';
+                    loadAllStudentsMobile();
+                })
+                .catch(error => {
+                    showMessage('mobileDeleteMessage', `Error deleting results: ${error.message}`, 'danger');
                 });
         }
 
         function deleteStudent() {
-            if (isMobile) {
-                alert('This feature is not available on mobile devices.');
-                return;
-            }
-            
             const rollNo = document.getElementById('deleteRollNumber').value.trim();
             
             if (!rollNo.startsWith('0')) {
@@ -1488,20 +1850,46 @@
                 .then(() => {
                     showMessage('deleteMessage', `Student ${rollNo} completely deleted!`, 'success');
                     document.getElementById('deleteRollNumber').value = '';
+                    document.getElementById('mobileDeleteRollNumber').value = '';
                     
-                    loadAllStudents();
+                    if (isMobile) {
+                        loadAllStudentsMobile();
+                    } else {
+                        loadAllStudents();
+                    }
                 })
                 .catch(error => {
                     showMessage('deleteMessage', `Error deleting student: ${error.message}`, 'danger');
                 });
         }
 
-        function exportToExcel() {
-            if (isMobile) {
-                alert('This feature is not available on mobile devices.');
+        function deleteStudentMobile() {
+            const rollNo = document.getElementById('mobileDeleteRollNumber').value.trim();
+            
+            if (!rollNo.startsWith('0')) {
+                showMessage('mobileDeleteMessage', 'Please enter a valid roll number starting with 0', 'danger');
                 return;
             }
             
+            if (!confirm(`WARNING: Are you sure you want to COMPLETELY delete student ${rollNo}?\n\nThis will remove ALL student data including name. This action cannot be undone!`)) {
+                return;
+            }
+            
+            showMessage('mobileDeleteMessage', 'Deleting complete student record...', 'info');
+            
+            database.ref('students/' + rollNo).remove()
+                .then(() => {
+                    showMessage('mobileDeleteMessage', `Student ${rollNo} completely deleted!`, 'success');
+                    document.getElementById('deleteRollNumber').value = '';
+                    document.getElementById('mobileDeleteRollNumber').value = '';
+                    loadAllStudentsMobile();
+                })
+                .catch(error => {
+                    showMessage('mobileDeleteMessage', `Error deleting student: ${error.message}`, 'danger');
+                });
+        }
+
+        function exportToExcel() {
             showMessage('exportMessage', 'Preparing Excel file...', 'info');
             
             database.ref('students').once('value')
@@ -1551,6 +1939,59 @@
                 })
                 .catch(error => {
                     showMessage('exportMessage', `Error exporting data: ${error.message}`, 'danger');
+                });
+        }
+
+        function exportToExcelMobile() {
+            showMessage('mobileExportMessage', 'Preparing Excel file...', 'info');
+            
+            database.ref('students').once('value')
+                .then(snapshot => {
+                    const allStudents = snapshot.val();
+                    const wb = XLSX.utils.book_new();
+                    
+                    if (allStudents) {
+                        Object.keys(allStudents).forEach(rollNo => {
+                            const student = allStudents[rollNo];
+                            const sheetData = [
+                                [`Student: ${student.name || 'N/A'} (${rollNo})`],
+                                [],
+                                ['Subject', 'Test Type', 'Total Marks', 'Obtained Marks', 'Status']
+                            ];
+                            
+                            if (student.subjects && Object.keys(student.subjects).length > 0) {
+                                Object.keys(student.subjects).forEach(subject => {
+                                    Object.keys(student.subjects[subject]).forEach(testType => {
+                                        const marks = student.subjects[subject][testType];
+                                        const obtained = marks.obtained || 'A';
+                                        const total = marks.total || 0;
+                                        const displayTestType = testType.replace(/_/g, ' ');
+                                        const status = obtained === 'A' ? 'ABSENT' : 
+                                            (parseFloat(obtained) / total >= 0.5 ? 'PASS' : 'FAIL');
+                                        
+                                        sheetData.push([
+                                            subject,
+                                            displayTestType,
+                                            total,
+                                            obtained,
+                                            status
+                                        ]);
+                                    });
+                                });
+                            } else {
+                                sheetData.push(['', 'No results available', '', '', '']);
+                            }
+                            
+                            const ws = XLSX.utils.aoa_to_sheet(sheetData);
+                            XLSX.utils.book_append_sheet(wb, ws, rollNo.substring(0, 31));
+                        });
+                    }
+                    
+                    XLSX.writeFile(wb, 'Student_Results.xlsx');
+                    showMessage('mobileExportMessage', 'Excel file exported successfully!', 'success');
+                })
+                .catch(error => {
+                    showMessage('mobileExportMessage', `Error exporting data: ${error.message}`, 'danger');
                 });
         }
 
